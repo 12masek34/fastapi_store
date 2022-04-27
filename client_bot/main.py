@@ -1,3 +1,3 @@
-from client_bot.bot import app
+from bot import app
 
 app.run()

@@ -1,12 +1,14 @@
-from pyrogram import Client
+import typing
 
-app = Client('my_bot',
-             api_id=13542258,
-             api_hash='a5fbecad0687312eb8fea06d7a88b399',
-             bot_token='5279728090:AAF_0JTxKynunlPiB1KPidXsxloFoIrcvrA'
-             )
+from application import app
+
+if typing.TYPE_CHECKING:
+    from application import Client
 
 
 @app.on_message()
-async def handler(client: Client, message):
-    print(message)
+async def handler(client: 'Client', message):
+    app.text_message = message.text
+    app.chat_id = message.chat.id
+    if app.text_message in app.START:
+        await app.send_start_message()
