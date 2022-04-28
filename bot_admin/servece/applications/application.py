@@ -12,8 +12,8 @@ class Client(Pyrogram_Client, Message):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.cash = Deque()
-        self.cash.append('start')
+        self.cache = Deque()
+        self.cache.append('start')
         self.post = Post()
         self.command = Command()
         self.api = Api()
@@ -23,13 +23,13 @@ class Client(Pyrogram_Client, Message):
         if self.text_message in self.command.START:
             await self.send_message(self.chat_id, self.command.START_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.START))
-        elif self.cash.get_last_element() == self.command.CREATE_POST:
+        elif self.cache.get_last_element() == self.command.CREATE_POST:
             self.post.title = self.text_message
             await self.send_message(self.chat_id, self.command.CREATE_POST_TEXT)
-            self.cash.append(self.command.TITLE)
-        elif self.cash.get_last_element() == self.command.TITLE:
+            self.cache.append(self.command.TITLE)
+        elif self.cache.get_last_element() == self.command.TITLE:
             self.post.text = self.text_message
-            self.cash.append(self.command.TEXT)
+            self.cache.append(self.command.TEXT)
             self.api.get_all_category()
             self.keyboard.create_keyboard_category(self.api.categories)
             await self.send_message(self.chat_id, self.command.CHOICE_CATEGORY,
@@ -40,32 +40,35 @@ class Client(Pyrogram_Client, Message):
             await bot.delete_messages(bot.chat_id, bot.message_id)
             await self.send_message(self.chat_id, self.command.POST_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.CRUD))
-            self.cash.append(self.callback_data.data)
+            self.cache.append(self.callback_data.data)
 
         elif self.callback_data == self.command.CATEGORY:
             await bot.delete_messages(bot.chat_id, bot.message_id)
             await self.send_message(self.chat_id, self.command.CATEGORY_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.CRUD))
-            self.cash.append(self.callback_data.data)
+            self.cache.append(self.callback_data.data)
 
         elif self.callback_data.data == self.command.CREATE:
+
             self.command.callback_data = self.callback_data.data
-            self.command.location = self.cash.get_last_element()
+            self.command.location = self.cache.get_last_element()
             self.command.gather_command()
             if self.command.new_command == self.command.CREATE_POST:
                 await bot.delete_messages(bot.chat_id, bot.message_id)
                 await self.send_message(self.chat_id, self.command.CREATE_POST_TITLE)
-                self.cash.append(self.command.CREATE_POST)
+
+                self.cache.append(self.command.CREATE_POST)
 
         elif self.command.ADD_CATEGORY in self.callback_data.data:
+
             self.callback_data.parse_category_id()
             self.post.category = self.callback_data.category_id
-            self.cash.append(self.command.CREATE_POST_COMPLETED)
+            self.cache.append(self.command.CREATE_POST_COMPLETED)
             self.create_preview_post(self.post)
             await bot.delete_messages(bot.chat_id, bot.message_id)
             await bot.send_message(self.chat_id, self.preview_post)
 
-            self.cash.append(self.command.CREATE_PREVIEW_POST)
+            self.cache.append(self.command.CREATE_PREVIEW_POST)
 
     async def send_start_message(self) -> None:
         await self.send_message(self.chat_id, self.command.START_MESSAGE)
