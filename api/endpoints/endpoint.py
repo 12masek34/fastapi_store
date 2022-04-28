@@ -1,10 +1,12 @@
 from fastapi import APIRouter
 from models.database import session, Category
+from schemas.schema import CategorySchema
 
 endpoints = APIRouter()
 
 
-@endpoints.get('/categories', status_code=200)
+@endpoints.get('/categories', status_code=200, response_model=list[CategorySchema])
 async def index():
-    resp = session.query(Category).all()
-    return resp
+    categories = session.query(Category).all()
+
+    return categories

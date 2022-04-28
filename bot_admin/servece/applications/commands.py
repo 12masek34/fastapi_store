@@ -1,6 +1,3 @@
-from .my_deque import Deque
-
-
 class Command:
     def __init__(self):
         self.callback_data: str | None = None
@@ -21,12 +18,15 @@ class Command:
     CATEGORY = 'category'
 
     POST = 'post'
-    CATEGORY = 'category'
     CREATE = 'create'
     UPDATE = 'update'
     DELETE = 'delete'
 
     CREATE_POST = 'create_post'
+    ADD_CATEGORY = 'add_category'
+    CREATE_POST_COMPLETED = 'create_post_completed'
+    CREATE_PREVIEW_POST = 'create_preview_post'
+
 
     def gather_command(self):
         self.new_command = self.callback_data + '_' + self.location
