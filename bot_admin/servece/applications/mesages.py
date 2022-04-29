@@ -1,7 +1,6 @@
 import re
 
 
-
 class CallbackData:
     def __init__(self):
         self.data: str | None = None
@@ -46,4 +45,6 @@ class Message:
     def message_id(self, message_id) -> None:
         self._message_id = message_id
 
-
+    @staticmethod
+    def to_capitalize(text: str) -> str:
+        return text.capitalize()

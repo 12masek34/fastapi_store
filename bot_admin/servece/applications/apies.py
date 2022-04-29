@@ -25,5 +25,6 @@ class Api:
         self.categories = categories.json()
 
     def add_post(self, data: PostSchema):
-        print(data.dict())
-        requests.post(self.url_add_post, data.dict())
+        data = data.dict()
+        data = json.dumps(data)
+        requests.post(self.url_add_post, data=data)

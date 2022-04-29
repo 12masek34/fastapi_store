@@ -6,13 +6,13 @@ class Command:
 
     START = ['/start', 'start']
 
-    START_MESSAGE = 'Приветную господин. Что будем делать?'
+    START_MESSAGE = 'Что будем делать?'
     POST_MESSAGE = 'Приветную господин. Что будем делать c постами?'
     CATEGORY_MESSAGE = 'Приветную господин. Что будем делать c категориями?'
     CREATE_POST_TITLE = 'Ведите заголовок объявления.'
     CREATE_POST_TEXT = 'Введите текст объявления.'
     CHOICE_CATEGORY = 'Выберите категорию.'
-    CREATE_POST_SUCCESS = 'Объявление успешно добавлено.'
+    CREATE_POST = 'Объявление успешно добавлено.'
 
     ADD_TITLE = 'add_title'
     ADD_TEXT = 'add_text'
@@ -24,7 +24,7 @@ class Command:
     DELETE = 'delete'
     SAVE = 'save'
 
-    CREATE_POST = 'create_post'
+    NEW_POST = 'create_post'
     ADD_CATEGORY_TO_POST = 'add_category_to_post'
     CREATE_POST_COMPLETED = 'create_post_completed'
     CREATE_PREVIEW_POST = 'create_preview_post'

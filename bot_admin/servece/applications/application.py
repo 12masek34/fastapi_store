@@ -24,23 +24,18 @@ class Client(Pyrogram_Client, Message):
             await self.send_message(self.chat_id, self.command.START_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.START))
 
-        elif self.cache.last_element == self.command.CREATE_POST:
-            self.post.title = self.text_message
-            await self.send_message(self.chat_id, self.command.CREATE_POST_TEXT)
-            self.cache.append(self.command.ADD_TITLE)
-
         elif self.cache.last_element == self.command.ADD_CATEGORY_TO_POST:
-            self.post.title = self.text_message
+            self.post.title = self.to_capitalize(self.text_message)
             await self.send_message(self.chat_id, self.command.CREATE_POST_TEXT)
             self.cache.append(self.command.ADD_TITLE)
 
         elif self.cache.last_element == self.command.ADD_TITLE:
-            self.post.text = self.text_message
+            self.post.text = self.to_capitalize(self.text_message)
             self.create_preview_post()
             await self.send_message(self.chat_id, self.preview_post,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.SAVE_CANCEL))
             self.cache.append(self.command.ADD_TEXT)
-            self.cache.append(self.command.CREATE_POST)
+            self.cache.append(self.command.NEW_POST)
 
     async def parser_callback_data(self):
         if self.callback_data.data == self.command.POST:
@@ -61,12 +56,12 @@ class Client(Pyrogram_Client, Message):
             await self.delete_messages(self.chat_id, self.message_id)
             await self.send_message(self.chat_id, self.command.CHOICE_CATEGORY,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.category))
-            self.cache.append(self.command.CREATE_POST)
+            self.cache.append(self.command.NEW_POST)
 
         elif self.command.ADD_CATEGORY_TO_POST in self.callback_data.data:
 
             self.callback_data.parse_category_id()
-            self.post.category = self.callback_data.category_id
+            self.post.category_id = self.callback_data.category_id
             await self.delete_messages(self.chat_id, self.message_id)
             await self.send_message(self.chat_id, self.command.CREATE_POST_TITLE)
             self.cache.append(self.command.ADD_CATEGORY_TO_POST)
@@ -74,7 +69,10 @@ class Client(Pyrogram_Client, Message):
         elif self.callback_data.data == self.command.SAVE and self.command.CREATE in self.cache.last_element:
             self.query_to_api.add_post(self.post)
             await self.delete_messages(self.chat_id, self.message_id)
-            await self.send_message(self.chat_id, self.command.CREATE_POST_SUCCESS)
+            await self.send_message(self.chat_id, self.command.CREATE_POST)
+            self.cache.append(self.command.CREATE_POST_COMPLETED)
+            await self.send_message(self.chat_id, self.command.START_MESSAGE,
+                                    reply_markup=InlineKeyboardMarkup(self.keyboard.START))
 
     async def send_start_message(self) -> None:
         await self.send_message(self.chat_id, self.command.START_MESSAGE)
@@ -82,12 +80,11 @@ class Client(Pyrogram_Client, Message):
     def create_preview_post(self):
         title_category = ''
         for category in self.query_to_api.categories:
-            if category['id'] == self.post.category:
+            if category['id'] == self.post.category_id:
                 title_category = category['title']
 
         self.preview_post = (f'Категория:  {title_category}\n Заголовок объявления: {self.post.title}'
-                             f'\nТекст объявления: {self.post.text}\n'
-                             )
+                             f'\nТекст объявления: {self.post.text}\n')
 
 
 bot = Client('my_bot',
