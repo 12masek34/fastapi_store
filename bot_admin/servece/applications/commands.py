@@ -23,7 +23,7 @@ class Command:
     DELETE = 'delete'
 
     CREATE_POST = 'create_post'
-    ADD_CATEGORY = 'add_category'
+    ADD_CATEGORY_TO_POST = 'add_category_to_post'
     CREATE_POST_COMPLETED = 'create_post_completed'
     CREATE_PREVIEW_POST = 'create_preview_post'
 

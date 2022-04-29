@@ -16,7 +16,7 @@ class Client(Pyrogram_Client, Message):
         self.cache.append('start')
         self.post = Post()
         self.command = Command()
-        self.api = Api()
+        self.query_to_api = Api()
         self.keyboard = Keyboard()
 
     async def parse_message_text(self) -> None:
@@ -27,11 +27,12 @@ class Client(Pyrogram_Client, Message):
             self.post.title = self.text_message
             await self.send_message(self.chat_id, self.command.CREATE_POST_TEXT)
             self.cache.append(self.command.TITLE)
+
         elif self.cache.get_last_element() == self.command.TITLE:
             self.post.text = self.text_message
             self.cache.append(self.command.TEXT)
-            self.api.get_all_category()
-            self.keyboard.create_keyboard_category(self.api.categories)
+            self.query_to_api.get_all_category()
+            self.keyboard.create_keyboard_category(self.query_to_api.categories)
             await self.send_message(self.chat_id, self.command.CHOICE_CATEGORY,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.category))
 
@@ -54,12 +55,14 @@ class Client(Pyrogram_Client, Message):
             self.command.location = self.cache.get_last_element()
             self.command.gather_command()
             if self.command.new_command == self.command.CREATE_POST:
+
                 await bot.delete_messages(bot.chat_id, bot.message_id)
+
                 await self.send_message(self.chat_id, self.command.CREATE_POST_TITLE)
 
                 self.cache.append(self.command.CREATE_POST)
 
-        elif self.command.ADD_CATEGORY in self.callback_data.data:
+        elif self.command.ADD_CATEGORY_TO_POST in self.callback_data.data:
 
             self.callback_data.parse_category_id()
             self.post.category = self.callback_data.category_id
@@ -75,7 +78,7 @@ class Client(Pyrogram_Client, Message):
 
     def create_preview_post(self, post: Post):
         title_category = ''
-        for category in self.api.categories:
+        for category in self.query_to_api.categories:
             if category['id'] == post.category:
                 title_category = category['title']
 

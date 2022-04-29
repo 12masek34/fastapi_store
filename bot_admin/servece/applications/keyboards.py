@@ -19,5 +19,5 @@ class Keyboard:
     def create_keyboard_category(self, category):
         res = []
         for i in category:
-            res.append([InlineKeyboardButton(i['title'], callback_data=f'add_category{i["id"]}')])
+            res.append([InlineKeyboardButton(i['title'], callback_data=f'add_category_to_post{i["id"]}')])
         self.category = res
