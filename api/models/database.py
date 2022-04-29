@@ -30,8 +30,9 @@ class Category(Base):
 
 
 # Base.metadata.drop_all(engine)
-Base.metadata.create_all(engine)
-a = session.query(Category).all()
+# Base.metadata.create_all(engine)
+# a = session.query(Category).all()
+
 
 
 # p = Post(

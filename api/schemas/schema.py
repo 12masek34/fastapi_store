@@ -2,9 +2,9 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class Post(BaseModel):
+class PostSchema(BaseModel):
     title: str
-    category: str
+    category_id: int
     text: str
 
 
@@ -17,3 +17,5 @@ class CategorySchema(BaseModel):
         orm_mode = True
 
 
+class OkSchema(BaseModel):
+    status: str = 'ok'

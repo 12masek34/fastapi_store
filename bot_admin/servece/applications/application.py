@@ -3,7 +3,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from servece.applications.commands import Command
 from servece.applications.mesages import Message
 from servece.applications.deques import Deque
-from servece.schemas.schema import Post
+from servece.schemas.schema import PostSchema
 from servece.applications.apies import Api
 from servece.applications.keyboards import Keyboard
 
@@ -14,7 +14,7 @@ class Client(Pyrogram_Client, Message):
         super().__init__(*args, **kwargs)
         self.cache = Deque()
         self.cache.append('start')
-        self.post = Post()
+        self.post = PostSchema()
         self.command = Command()
         self.query_to_api = Api()
         self.keyboard = Keyboard()
@@ -23,67 +23,71 @@ class Client(Pyrogram_Client, Message):
         if self.text_message in self.command.START:
             await self.send_message(self.chat_id, self.command.START_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.START))
-        elif self.cache.get_last_element() == self.command.CREATE_POST:
+
+        elif self.cache.last_element == self.command.CREATE_POST:
             self.post.title = self.text_message
             await self.send_message(self.chat_id, self.command.CREATE_POST_TEXT)
-            self.cache.append(self.command.TITLE)
+            self.cache.append(self.command.ADD_TITLE)
 
-        elif self.cache.get_last_element() == self.command.TITLE:
+        elif self.cache.last_element == self.command.ADD_CATEGORY_TO_POST:
+            self.post.title = self.text_message
+            await self.send_message(self.chat_id, self.command.CREATE_POST_TEXT)
+            self.cache.append(self.command.ADD_TITLE)
+
+        elif self.cache.last_element == self.command.ADD_TITLE:
             self.post.text = self.text_message
-            self.cache.append(self.command.TEXT)
-            self.query_to_api.get_all_category()
-            self.keyboard.create_keyboard_category(self.query_to_api.categories)
-            await self.send_message(self.chat_id, self.command.CHOICE_CATEGORY,
-                                    reply_markup=InlineKeyboardMarkup(self.keyboard.category))
+            self.create_preview_post()
+            await self.send_message(self.chat_id, self.preview_post,
+                                    reply_markup=InlineKeyboardMarkup(self.keyboard.SAVE_CANCEL))
+            self.cache.append(self.command.ADD_TEXT)
+            self.cache.append(self.command.CREATE_POST)
 
     async def parser_callback_data(self):
         if self.callback_data.data == self.command.POST:
-            await bot.delete_messages(bot.chat_id, bot.message_id)
+            await self.delete_messages(self.chat_id, self.message_id)
             await self.send_message(self.chat_id, self.command.POST_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.CRUD))
             self.cache.append(self.callback_data.data)
 
         elif self.callback_data == self.command.CATEGORY:
-            await bot.delete_messages(bot.chat_id, bot.message_id)
+            await self.delete_messages(self.chat_id, self.message_id)
             await self.send_message(self.chat_id, self.command.CATEGORY_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.CRUD))
             self.cache.append(self.callback_data.data)
 
-        elif self.callback_data.data == self.command.CREATE:
-
-            self.command.callback_data = self.callback_data.data
-            self.command.location = self.cache.get_last_element()
-            self.command.gather_command()
-            if self.command.new_command == self.command.CREATE_POST:
-
-                await bot.delete_messages(bot.chat_id, bot.message_id)
-
-                await self.send_message(self.chat_id, self.command.CREATE_POST_TITLE)
-
-                self.cache.append(self.command.CREATE_POST)
+        elif self.callback_data.data == self.command.CREATE and self.cache.last_element == self.command.POST:
+            self.query_to_api.get_all_category()
+            self.keyboard.create_keyboard_category(self.query_to_api.categories)
+            await self.delete_messages(self.chat_id, self.message_id)
+            await self.send_message(self.chat_id, self.command.CHOICE_CATEGORY,
+                                    reply_markup=InlineKeyboardMarkup(self.keyboard.category))
+            self.cache.append(self.command.CREATE_POST)
 
         elif self.command.ADD_CATEGORY_TO_POST in self.callback_data.data:
 
             self.callback_data.parse_category_id()
             self.post.category = self.callback_data.category_id
-            self.cache.append(self.command.CREATE_POST_COMPLETED)
-            self.create_preview_post(self.post)
-            await bot.delete_messages(bot.chat_id, bot.message_id)
-            await bot.send_message(self.chat_id, self.preview_post)
+            await self.delete_messages(self.chat_id, self.message_id)
+            await self.send_message(self.chat_id, self.command.CREATE_POST_TITLE)
+            self.cache.append(self.command.ADD_CATEGORY_TO_POST)
 
-            self.cache.append(self.command.CREATE_PREVIEW_POST)
+        elif self.callback_data.data == self.command.SAVE and self.command.CREATE in self.cache.last_element:
+            self.query_to_api.add_post(self.post)
+            await self.delete_messages(self.chat_id, self.message_id)
+            await self.send_message(self.chat_id, self.command.CREATE_POST_SUCCESS)
 
     async def send_start_message(self) -> None:
         await self.send_message(self.chat_id, self.command.START_MESSAGE)
 
-    def create_preview_post(self, post: Post):
+    def create_preview_post(self):
         title_category = ''
         for category in self.query_to_api.categories:
-            if category['id'] == post.category:
+            if category['id'] == self.post.category:
                 title_category = category['title']
 
-        self.preview_post = (f'Заголовок объявления: {post.title}\nТекст объявления: {post.text}\n'
-                             f'Категория:  {title_category}')
+        self.preview_post = (f'Категория:  {title_category}\n Заголовок объявления: {self.post.title}'
+                             f'\nТекст объявления: {self.post.text}\n'
+                             )
 
 
 bot = Client('my_bot',

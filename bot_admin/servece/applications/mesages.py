@@ -1,5 +1,5 @@
 import re
-from servece.schemas.schema import Post
+
 
 
 class CallbackData:

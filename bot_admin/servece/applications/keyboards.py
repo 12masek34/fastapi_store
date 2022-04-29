@@ -16,6 +16,11 @@ class Keyboard:
         [InlineKeyboardButton('удалить', callback_data='delete')]
     ]
 
+    SAVE_CANCEL = [
+        [InlineKeyboardButton('Сохранить', callback_data='save')],
+        [InlineKeyboardButton('Отмена', callback_data='cancel')]
+    ]
+
     def create_keyboard_category(self, category):
         res = []
         for i in category:
