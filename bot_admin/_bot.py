@@ -7,6 +7,8 @@ if typing.TYPE_CHECKING:
 
 @bot.on_message()
 async def message_handler(client: 'Client', message):
+    bot.user.username = message.from_user.username
+    bot.user.password = str(message.from_user.id)
     bot.text_message = message.text
     bot.chat_id = message.chat.id
     bot.message_id = message.id

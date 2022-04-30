@@ -3,7 +3,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from servece.applications.commands import Command
 from servece.applications.mesages import Message
 from servece.applications.deques import Deque
-from servece.schemas.schema import PostSchema
+from servece.schemas.schema import PostSchema, GetTokenUserSchema
 from servece.applications.apies import Api
 from servece.applications.keyboards import Keyboard
 
@@ -12,6 +12,7 @@ class Client(Pyrogram_Client, Message):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = GetTokenUserSchema()
         self.cache = Deque()
         self.cache.append('start')
         self.post = PostSchema()
@@ -20,7 +21,9 @@ class Client(Pyrogram_Client, Message):
         self.keyboard = Keyboard()
 
     async def parse_message_text(self) -> None:
+
         if self.text_message in self.command.START:
+            self.query_to_api.get_token(bot.user)
             await self.send_message(self.chat_id, self.command.START_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.START))
 
@@ -37,7 +40,7 @@ class Client(Pyrogram_Client, Message):
             self.cache.append(self.command.ADD_TEXT)
             self.cache.append(self.command.NEW_POST)
 
-    async def parser_callback_data(self):
+    async def parser_callback_data(self) -> None:
         if self.callback_data.data == self.command.POST:
             await self.delete_messages(self.chat_id, self.message_id)
             await self.send_message(self.chat_id, self.command.POST_MESSAGE,
