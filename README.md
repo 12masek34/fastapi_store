@@ -4,7 +4,7 @@
 
 ### Backend 
 FastAPI, Pydantic, Sqlalchemy
-Фвторизация JWT
+Авторизация jose JWT
 
 ### Admin client
 Pyrogram, bcrypt
