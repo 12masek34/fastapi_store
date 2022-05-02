@@ -45,17 +45,18 @@ class Api:
         except requests.exceptions.JSONDecodeError:
             pass
 
-    def add_post(self, data: PostSchema) -> None:
+    def add_post(self, data: PostSchema):
         data = data.dict()
         data = json.dumps(data)
-        r = requests.post(self.url_add_post, data=data, headers=self.create_headers_token())
-        print(r)
+        response = requests.post(self.url_add_post, data=data, headers=self.create_headers_token())
+        return response.status_code
 
-    def add_category(self, data: CategorySchema) -> None:
+    def add_category(self, data: CategorySchema):
         data = data.dict()
         data = json.dumps(data)
-        r = requests.post(self.url_add_category, data=data, headers=self.create_headers_token())
-        print(r)
+        response = requests.post(self.url_add_category, data=data, headers=self.create_headers_token())
+        return response.status_code
+
 
     def get_token(self, user):
         user = user.dict()

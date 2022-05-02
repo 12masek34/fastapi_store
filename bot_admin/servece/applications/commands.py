@@ -33,6 +33,8 @@ class Command:
     CREATE_POST_COMPLETED = 'create_post_completed'
     CREATE_CATEGORY_COMPLETED = 'create_category_completed'
 
+    DELETE_AND_SEND_MESSAGE = 'delete_and_send_message'
+
     def gather_command(self) -> None:
         self.new_command = self.callback_data + '_' + self.location
 
