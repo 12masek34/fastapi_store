@@ -1,13 +1,16 @@
 import json
 
 import requests
-from servece.schemas.schema import PostSchema
+from servece.schemas.schema import PostSchema, CategorySchema
+from pyrogram.errors import Forbidden
 
 
 class Api:
     URL = 'http://0.0.0.0:8000'
     CATEGORIES = '/categories'
-    ADD_POST = '/add/post'
+    CATEGORY = '/category'
+    ADD = '/add'
+    POST = '/post'
     TOKEN = '/token'
     USERS_ME = '/users/me'
 
@@ -20,8 +23,12 @@ class Api:
         return self.URL + self.CATEGORIES
 
     @property
+    def url_add_category(self) -> str:
+        return self.URL + self.ADD + self.CATEGORY
+
+    @property
     def url_add_post(self) -> str:
-        return self.URL + self.ADD_POST
+        return self.URL + self.ADD + self.POST
 
     @property
     def url_get_token(self) -> str:
@@ -32,13 +39,22 @@ class Api:
         return self.URL + self.USERS_ME
 
     def get_all_category(self) -> None:
-        categories = requests.get(self.url_category)
-        self.categories = categories.json()
+        try:
+            categories = requests.get(self.url_category, headers=self.create_headers_token())
+            self.categories = categories.json()
+        except requests.exceptions.JSONDecodeError:
+            pass
 
     def add_post(self, data: PostSchema) -> None:
         data = data.dict()
         data = json.dumps(data)
         r = requests.post(self.url_add_post, data=data, headers=self.create_headers_token())
+        print(r)
+
+    def add_category(self, data: CategorySchema) -> None:
+        data = data.dict()
+        data = json.dumps(data)
+        r = requests.post(self.url_add_category, data=data, headers=self.create_headers_token())
         print(r)
 
     def get_token(self, user):
@@ -50,6 +66,9 @@ class Api:
         me = requests.get(self.url_ger_users_me, headers=self.create_headers_token())
 
     def create_headers_token(self):
-        bearer = f'Bearer {self.token["access_token"]}'
-        headers = {'Authorization': bearer}
-        return headers
+        try:
+            bearer = f'Bearer {self.token["access_token"]}'
+            headers = {'Authorization': bearer}
+            return headers
+        except TypeError:
+            raise Forbidden

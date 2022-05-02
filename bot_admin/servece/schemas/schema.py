@@ -7,7 +7,11 @@ class PostSchema(BaseModel):
     category_id: str = None
 
 
-class GetTokenUserSchema(BaseModel):
+class CategorySchema(BaseModel):
+    title: str | None = None
+
+
+class TokenUserSchema(BaseModel):
     grant_type: str = None
     username: str | None = None
     password: str | None = None

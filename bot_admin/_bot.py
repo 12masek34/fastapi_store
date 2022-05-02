@@ -1,5 +1,6 @@
 import typing
 from servece.applications.application import bot
+from pyrogram.errors.exceptions.forbidden_403 import Forbidden
 
 if typing.TYPE_CHECKING:
     from bot_admin.servece.applications.application import Client
@@ -17,10 +18,13 @@ async def message_handler(client: 'Client', message):
 
 @bot.on_callback_query()
 async def answer(client, callback_query):
-    bot.callback_data.data = callback_query.data
-    bot.chat_id = callback_query.message.chat.id
-    bot.message_id = callback_query.message.id
-    await bot.parser_callback_data()
+    try:
+        bot.callback_data.data = callback_query.data
+        bot.chat_id = callback_query.message.chat.id
+        bot.message_id = callback_query.message.id
+        await bot.parser_callback_data()
+    except Forbidden:
+        await bot.send_message(bot.chat_id, bot.exception.FORBIDDEN_MESSAGE)
 
     # if bot.cash.get_last_element() == bot.START:
     #     bot.post.title = bot.text_message

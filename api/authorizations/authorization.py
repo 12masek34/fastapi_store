@@ -62,27 +62,7 @@ class Auth:
         self.encoded_jwt = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return self.encoded_jwt
 
-    # async def get_current_user(self, token: str = Depends(oauth2_scheme)):
-    #     credentials_exception = HTTPException(
-    #         status_code=status.HTTP_401_UNAUTHORIZED,
-    #         detail="Could not validate credentials",
-    #         headers={"WWW-Authenticate": "Bearer"},
-    #     )
-    #     try:
-    #         payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
-    #         username: str = payload.get("sub")
-    #         if username is None:
-    #             raise credentials_exception
-    #         token_data = TokenDataSchema(username=username)
-    #     except JWTError:
-    #         raise credentials_exception
-    #     self.get_user(username=token_data.username)
-    #     if self.user is None:
-    #         raise credentials_exception
-    #     return self.user
-
     async def check_auth(self, token: str = Depends(oauth2_scheme)):
-
         try:
             payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
             username: str = payload.get("sub")

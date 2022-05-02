@@ -9,11 +9,12 @@ class Command:
     START_MESSAGE = 'Что будем делать?'
     POST_MESSAGE = 'Приветную господин. Что будем делать c постами?'
     CATEGORY_MESSAGE = 'Приветную господин. Что будем делать c категориями?'
-    CREATE_POST_TITLE = 'Ведите заголовок объявления.'
-    CREATE_POST_TEXT = 'Введите текст объявления.'
-    CHOICE_CATEGORY = 'Выберите категорию.'
-    CREATE_POST = 'Объявление успешно добавлено.'
-    CREATE_CATEGORY_TITLE = ' Введите название категории.'
+    CREATE_POST_TITLE_MESSAGE = 'Ведите заголовок объявления.'
+    CREATE_POST_TEXT_MESSAGE = 'Введите текст объявления.'
+    CHOICE_CATEGORY_MESSAGE = 'Выберите категорию.'
+    CREATE_POST_MESSAGE = 'Объявление успешно добавлено.'
+    CREATE_CATEGORY_MESSAGE = 'Категория успешно добавлена.'
+    CREATE_CATEGORY_TITLE_MESSAGE = ' Введите название категории.'
 
     ADD_TITLE = 'add_title'
     ADD_TEXT = 'add_text'
@@ -27,9 +28,22 @@ class Command:
     SAVE = 'save'
 
     NEW_POST = 'create_post'
+    NEW_CATEGORY = 'create_category'
     ADD_CATEGORY_TO_POST = 'add_category_to_post'
     CREATE_POST_COMPLETED = 'create_post_completed'
-    CREATE_PREVIEW_POST = 'create_preview_post'
+    CREATE_CATEGORY_COMPLETED = 'create_category_completed'
 
-    def gather_command(self):
+    def gather_command(self) -> None:
         self.new_command = self.callback_data + '_' + self.location
+
+    @property
+    def add_title_category(self) -> str:
+        return self.ADD_TITLE + '_' + self.CATEGORY
+
+    @property
+    def create_post(self) -> str:
+        return self.CREATE + '_' + self.POST
+
+    @property
+    def create_category(self) -> str:
+        return self.CREATE + '_' + self.CATEGORY

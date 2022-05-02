@@ -7,11 +7,21 @@ class PostSchema(BaseModel):
     category_id: int
     text: str
 
+    class Config:
+        orm_mode = True
+
 
 class CategorySchema(BaseModel):
     id: int
     title: str
     created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class AddCategorySchema(BaseModel):
+    title: str
 
     class Config:
         orm_mode = True
