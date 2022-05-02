@@ -13,12 +13,14 @@ class Command:
     CREATE_POST_TEXT = 'Введите текст объявления.'
     CHOICE_CATEGORY = 'Выберите категорию.'
     CREATE_POST = 'Объявление успешно добавлено.'
+    CREATE_CATEGORY_TITLE = ' Введите название категории.'
 
     ADD_TITLE = 'add_title'
     ADD_TEXT = 'add_text'
-    CATEGORY = 'category'
 
+    CATEGORY = 'category'
     POST = 'post'
+
     CREATE = 'create'
     UPDATE = 'update'
     DELETE = 'delete'

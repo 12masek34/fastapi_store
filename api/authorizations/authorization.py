@@ -1,3 +1,5 @@
+import os
+
 from models.database import session, User
 from schemas.auth_schema import UserSchemaInDB, TokenDataSchema
 from datetime import datetime, timedelta
@@ -5,12 +7,15 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class Auth:
-    SECRET_KEY = "90af17216c989ca797231e70a7d88011406cf31607bcbc21be29ea4114701c7c"
-    ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    ALGORITHM = os.getenv('ALGORITHM')
+    ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -20,6 +25,11 @@ class Auth:
         self.db_user = User
         self.user: UserSchemaInDB | None = None
         self.encoded_jwt: str | None = None
+        self.credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     def get_password_hash(self, password):
         return self.pwd_context.hash(password)
@@ -52,36 +62,31 @@ class Auth:
         self.encoded_jwt = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return self.encoded_jwt
 
-    async def get_current_user(self, token: str = Depends(oauth2_scheme)):
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        try:
-            payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
-            username: str = payload.get("sub")
-            if username is None:
-                raise credentials_exception
-            token_data = TokenDataSchema(username=username)
-        except JWTError:
-            raise credentials_exception
-        self.get_user(username=token_data.username)
-        if self.user is None:
-            raise credentials_exception
-        return self.user
+    # async def get_current_user(self, token: str = Depends(oauth2_scheme)):
+    #     credentials_exception = HTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail="Could not validate credentials",
+    #         headers={"WWW-Authenticate": "Bearer"},
+    #     )
+    #     try:
+    #         payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
+    #         username: str = payload.get("sub")
+    #         if username is None:
+    #             raise credentials_exception
+    #         token_data = TokenDataSchema(username=username)
+    #     except JWTError:
+    #         raise credentials_exception
+    #     self.get_user(username=token_data.username)
+    #     if self.user is None:
+    #         raise credentials_exception
+    #     return self.user
 
     async def check_auth(self, token: str = Depends(oauth2_scheme)):
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+
         try:
             payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
             username: str = payload.get("sub")
             if username is None:
-                raise credentials_exception
-            token_data = TokenDataSchema(username=username)
+                raise self.credentials_exception
         except JWTError:
-            raise credentials_exception
+            raise self.credentials_exception

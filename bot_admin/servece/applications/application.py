@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from pyrogram import Client as Pyrogram_Client
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from servece.applications.commands import Command
@@ -6,6 +8,9 @@ from servece.applications.deques import Deque
 from servece.schemas.schema import PostSchema, GetTokenUserSchema
 from servece.applications.apies import Api
 from servece.applications.keyboards import Keyboard
+from servece.event.handler import EventHandler
+
+load_dotenv()
 
 
 class Client(Pyrogram_Client, Message):
@@ -19,11 +24,13 @@ class Client(Pyrogram_Client, Message):
         self.command = Command()
         self.query_to_api = Api()
         self.keyboard = Keyboard()
+        self.event_handler = EventHandler()
 
     async def parse_message_text(self) -> None:
 
         if self.text_message in self.command.START:
             self.query_to_api.get_token(bot.user)
+
             await self.send_message(self.chat_id, self.command.START_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.START))
 
@@ -41,13 +48,15 @@ class Client(Pyrogram_Client, Message):
             self.cache.append(self.command.NEW_POST)
 
     async def parser_callback_data(self) -> None:
+
         if self.callback_data.data == self.command.POST:
             await self.delete_messages(self.chat_id, self.message_id)
             await self.send_message(self.chat_id, self.command.POST_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.CRUD))
             self.cache.append(self.callback_data.data)
 
-        elif self.callback_data == self.command.CATEGORY:
+        elif self.callback_data.data == self.command.CATEGORY:
+
             await self.delete_messages(self.chat_id, self.message_id)
             await self.send_message(self.chat_id, self.command.CATEGORY_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.CRUD))
@@ -77,6 +86,10 @@ class Client(Pyrogram_Client, Message):
             await self.send_message(self.chat_id, self.command.START_MESSAGE,
                                     reply_markup=InlineKeyboardMarkup(self.keyboard.START))
 
+        elif self.callback_data.data == self.command.CREATE and self.cache.last_element == self.command.CATEGORY:
+            await self.delete_messages(self.chat_id, self.message_id)
+            await self.send_message(self.chat_id, self.command.)
+
     async def send_start_message(self) -> None:
         await self.send_message(self.chat_id, self.command.START_MESSAGE)
 
@@ -91,7 +104,7 @@ class Client(Pyrogram_Client, Message):
 
 
 bot = Client('my_bot',
-             api_id=13542258,
-             api_hash='a5fbecad0687312eb8fea06d7a88b399',
-             bot_token='5279728090:AAF_0JTxKynunlPiB1KPidXsxloFoIrcvrA'
+             api_id=int(os.getenv('api_id')),
+             api_hash=os.getenv('api_hash'),
+             bot_token=os.getenv('bot_token')
              )
