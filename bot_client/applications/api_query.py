@@ -44,9 +44,8 @@ class Api:
 
     def get_posts_filter_by_category_id(self, category_id: str) -> dict:
         try:
-            category_id = int(category_id)
-            payload = {'category_id': category_id}
-            posts = requests.get(self.url_posts, headers=self.create_headers_token(), params=json.dumps(payload))
+            payload = {'post_id': category_id}
+            posts = requests.get(self.url_posts, headers=self.create_headers_token(), params=payload)
             return posts.json()
         except requests.exceptions.JSONDecodeError:
             pass

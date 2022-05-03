@@ -22,9 +22,10 @@ async def all_categories():
 
 @endpoints.get('/posts', status_code=200, response_model=list[PostSchema], tags=['posts'],
                dependencies=[(Depends(auth.check_auth))])
-async def posts(post_id: PostIdSchema):
+async def posts(post_id: int):
     if post_id is not None:
-        filter_posts = session.query(Post).filter(category_id=post_id)
+        filter_posts = session.query(Post).filter(Post.category_id == post_id)
+        print(filter_posts)
 
         return filter_posts
     else:
