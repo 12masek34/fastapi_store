@@ -1,12 +1,16 @@
 import json
+import os
 
 import requests
 from schemas.schema import PostSchema, CategorySchema
 from pyrogram.errors import Forbidden
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class Api:
-    URL = 'http://0.0.0.0:8000'
+    URL = os.getenv('URL')
     CATEGORIES = '/categories'
     CATEGORY = '/category'
     ADD = '/add'
@@ -38,10 +42,10 @@ class Api:
     def url_ger_users_me(self) -> str:
         return self.URL + self.USERS_ME
 
-    def get_all_category(self) -> None:
+    def get_all_category(self) -> dict:
         try:
             categories = requests.get(self.url_category, headers=self.create_headers_token())
-            self.categories = categories.json()
+            return categories.json()
         except requests.exceptions.JSONDecodeError:
             pass
 
@@ -56,7 +60,6 @@ class Api:
         data = json.dumps(data)
         response = requests.post(self.url_add_category, data=data, headers=self.create_headers_token())
         return response.status_code
-
 
     def get_token(self, user):
         user = user.dict()

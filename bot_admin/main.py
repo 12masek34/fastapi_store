@@ -1,6 +1,6 @@
-from _bot import bot
+from bot import app
 
-bot.event_handler.register_handler('delete_and_send_message', bot.delete_messages)
-bot.event_handler.register_handler('delete_and_send_message', bot.send_message)
+app.event_handler.register_handler('delete_and_send_message', app.delete_messages)
+app.event_handler.register_handler('delete_and_send_message', app.send_message)
 
-bot.run()
+app.run()

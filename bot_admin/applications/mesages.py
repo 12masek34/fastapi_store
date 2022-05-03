@@ -11,7 +11,7 @@ class CallbackData:
         self.category_id = int(category_id)
 
 
-class Message:
+class MessageMixin:
 
     def __init__(self):
         self._text: str | None = None

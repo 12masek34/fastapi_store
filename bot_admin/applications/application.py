@@ -1,11 +1,11 @@
 import os
 from dotenv import load_dotenv
-from pyrogram import Client as Pyrogram_Client
+from pyrogram import Client as PyrogramClient
 from applications.commands import Command
-from applications.mesages import Message
-from applications.deques import Deque
+from applications.mesages import MessageMixin
+from applications.cache import Deque
 from schemas.schema import PostSchema, CategorySchema, TokenUserSchema
-from applications.apies import Api
+from applications.api_query import Api
 from applications.keyboards import Keyboard
 from event.handler import EventHandler
 from exceptions.exception import MyException
@@ -13,7 +13,7 @@ from exceptions.exception import MyException
 load_dotenv()
 
 
-class Client(Pyrogram_Client, Message):
+class Client(PyrogramClient, MessageMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,7 +32,7 @@ class Client(Pyrogram_Client, Message):
         """Обработчик текста. Так же проверяет и обрабатывает последний элемент cache."""
 
         if self.text_message in self.command.START:
-            self.query_to_api.get_token(bot.user)
+            self.query_to_api.get_token(self.user)
 
             await self.send_message(self.chat_id, self.command.START_MESSAGE,
                                     reply_markup=self.keyboard.START)
@@ -75,8 +75,8 @@ class Client(Pyrogram_Client, Message):
             self.cache.append(self.callback_data.data)
 
         elif self.callback_data.data == self.command.CREATE and self.cache.last_element == self.command.POST:
-            self.query_to_api.get_all_category()
-            self.keyboard.create_keyboard_category(self.query_to_api.categories)
+            categories = self.query_to_api.get_all_category()
+            self.keyboard.create_keyboard_category(categories)
             await self.event_handler.executor_event(self.command.DELETE_AND_SEND_MESSAGE, chat_id=self.chat_id,
                                                     message_id=self.message_id,
                                                     command=self.command.CHOICE_CATEGORY_MESSAGE,
@@ -135,7 +135,7 @@ class Client(Pyrogram_Client, Message):
         return self.category.title
 
 
-bot = Client('my_bot',
+app = Client('my_bot',
              api_id=int(os.getenv('api_id')),
              api_hash=os.getenv('api_hash'),
              bot_token=os.getenv('bot_token')
