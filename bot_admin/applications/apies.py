@@ -1,7 +1,7 @@
 import json
 
 import requests
-from servece.schemas.schema import PostSchema, CategorySchema
+from schemas.schema import PostSchema, CategorySchema
 from pyrogram.errors import Forbidden
 
 

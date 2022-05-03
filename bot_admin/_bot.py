@@ -1,9 +1,9 @@
 import typing
-from servece.applications.application import bot
+from applications.application import bot
 from pyrogram.errors.exceptions.forbidden_403 import Forbidden
 
 if typing.TYPE_CHECKING:
-    from bot_admin.servece.applications.application import Client
+    from applications.application import Client
 
 
 @bot.on_message()

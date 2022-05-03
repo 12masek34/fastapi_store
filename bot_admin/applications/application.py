@@ -1,14 +1,14 @@
 import os
 from dotenv import load_dotenv
 from pyrogram import Client as Pyrogram_Client
-from servece.applications.commands import Command
-from servece.applications.mesages import Message
-from servece.applications.deques import Deque
-from servece.schemas.schema import PostSchema, CategorySchema, TokenUserSchema
-from servece.applications.apies import Api
-from servece.applications.keyboards import Keyboard
-from servece.event.handler import EventHandler
-from servece.exceptions.exception import MyException
+from applications.commands import Command
+from applications.mesages import Message
+from applications.deques import Deque
+from schemas.schema import PostSchema, CategorySchema, TokenUserSchema
+from applications.apies import Api
+from applications.keyboards import Keyboard
+from event.handler import EventHandler
+from exceptions.exception import MyException
 
 load_dotenv()
 
