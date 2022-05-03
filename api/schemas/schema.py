@@ -2,13 +2,25 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class PostSchema(BaseModel):
+class AddPostSchema(BaseModel):
     title: str
     category_id: int
     text: str
 
     class Config:
         orm_mode = True
+
+
+class PostIdSchema(BaseModel):
+    category_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class PostSchema(PostIdSchema):
+    created_at: datetime
+    updated_at: datetime
 
 
 class CategorySchema(BaseModel):

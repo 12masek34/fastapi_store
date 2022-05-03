@@ -1,5 +1,5 @@
 from models.database import session, Category, Post
-from schemas.schema import CategorySchema, PostSchema, OkSchema, AddCategorySchema
+from schemas.schema import CategorySchema, AddPostSchema, OkSchema, AddCategorySchema, PostSchema, PostIdSchema
 from schemas.auth_schema import TokenSchema
 from fastapi.security import OAuth2PasswordRequestForm
 from authorizations.authorization import Auth
@@ -20,9 +20,20 @@ async def all_categories():
     return categories
 
 
+@endpoints.get('/posts', status_code=200, response_model=list[PostSchema], tags=['posts'],
+               dependencies=[(Depends(auth.check_auth))])
+async def posts(post_id: PostIdSchema):
+    if post_id is not None:
+        filter_posts = session.query(Post).filter(category_id=post_id)
+
+        return filter_posts
+    else:
+        pass
+
+
 @endpoints.post('/add/post', status_code=201, response_model=OkSchema, tags=['posts'],
                 dependencies=[(Depends(auth.check_auth))])
-async def add_post(data: PostSchema):
+async def add_post(data: AddPostSchema):
     post = Post(
         title=data.title,
         category_id=data.category_id,
@@ -44,7 +55,7 @@ async def add_category(data: AddCategorySchema):
     return ok_response
 
 
-@endpoints.post("/token", response_model=TokenSchema)
+@endpoints.post("/token", status_code=200, response_model=TokenSchema, tags=['token'])
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = auth.authenticate_user(form_data.username, form_data.password)
     if not user:

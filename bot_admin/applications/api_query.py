@@ -1,6 +1,5 @@
 import json
 import os
-
 import requests
 from schemas.schema import PostSchema, CategorySchema
 from pyrogram.errors import Forbidden
@@ -23,7 +22,7 @@ class Api:
         self.token: dict | None = None
 
     @property
-    def url_category(self) -> str:
+    def url_categories(self) -> str:
         return self.URL + self.CATEGORIES
 
     @property
@@ -44,7 +43,8 @@ class Api:
 
     def get_all_category(self) -> dict:
         try:
-            categories = requests.get(self.url_category, headers=self.create_headers_token())
+            categories = requests.get(self.url_categories, headers=self.create_headers_token())
+            self.categories = categories.json()
             return categories.json()
         except requests.exceptions.JSONDecodeError:
             pass
@@ -65,9 +65,6 @@ class Api:
         user = user.dict()
         token = requests.post(self.url_get_token, data=user)
         self.token = token.json()
-
-    def get_users_me(self):
-        me = requests.get(self.url_ger_users_me, headers=self.create_headers_token())
 
     def create_headers_token(self):
         try:

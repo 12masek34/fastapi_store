@@ -5,6 +5,7 @@ from applications.commands import Command
 from applications.keyboards import Keyboard
 from applications.cache import Deque
 from applications.api_query import Api
+from schemas.schema import TokenUserSchema
 from dotenv import load_dotenv
 
 if typing.TYPE_CHECKING:
@@ -21,19 +22,29 @@ class Client(PyrogramClient):
         self.keyboard = Keyboard()
         self.cache = Deque()
         self.query_to_api = Api()
+        self.user = TokenUserSchema()
 
     async def parse_message_text(self, message: 'Message') -> None:
         '''Обработчик текста сообщений.'''
+
         if message.text.lower() in self.command.START:
-            self.query_to_api.get()
+            self.query_to_api.get_token(self.user)
             await self.send_message(message.chat.id, self.command.START_MESSAGE, reply_markup=self.keyboard.START)
 
-    async def parser_callback_data(self, callback_query: CallbackQuery) -> None:
-        """Обработчик данных от клавиатуры"""
+    async def parser_callback_data(self, callback_query: 'CallbackQuery') -> None:
+        '''Обработчик данных от клавиатуры'''
+
         if callback_query.data == self.command.CATEGORY:
+            categories = self.query_to_api.get_all_category()
+            keyboard = self.keyboard.create_keyboard_category(categories)
+            await self.send_message(callback_query.message.chat.id, self.command.CHOICE_CATEGORY_MESSAGE,
+                                    reply_markup=keyboard)
+            self.cache.append(self.command.CATEGORY)
 
-
-
+        elif self.command.SELECTED_CATEGORY_PATTERN in callback_query.data:
+            category_id = self.command.get_category_id(callback_query.data)
+            posts = self.query_to_api.get_posts_filter_by_category_id(category_id)
+            print(posts)
 
 
 app = Client('my_bot',

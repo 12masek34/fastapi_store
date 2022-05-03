@@ -76,11 +76,11 @@ class Client(PyrogramClient, MessageMixin):
 
         elif self.callback_data.data == self.command.CREATE and self.cache.last_element == self.command.POST:
             categories = self.query_to_api.get_all_category()
-            self.keyboard.create_keyboard_category(categories)
+            keyboard = self.keyboard.create_keyboard_category(categories)
             await self.event_handler.executor_event(self.command.DELETE_AND_SEND_MESSAGE, chat_id=self.chat_id,
                                                     message_id=self.message_id,
                                                     command=self.command.CHOICE_CATEGORY_MESSAGE,
-                                                    keyboard=self.keyboard.category)
+                                                    keyboard=keyboard)
             self.cache.append(self.command.NEW_POST)
 
         elif self.command.ADD_CATEGORY_TO_POST in self.callback_data.data:

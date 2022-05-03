@@ -7,6 +7,8 @@ if typing.TYPE_CHECKING:
 
 @app.on_message()
 async def message_handler(client: 'Client', message):
+    app.user.username = message.from_user.username
+    app.user.password = str(message.from_user.id)
     await app.parse_message_text(message)
 
 
