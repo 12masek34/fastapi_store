@@ -11,16 +11,15 @@ class AddPostSchema(BaseModel):
         orm_mode = True
 
 
-class PostIdSchema(BaseModel):
+class PostSchema(BaseModel):
+    title: str
+    text: str
     category_id: int
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True
-
-
-class PostSchema(PostIdSchema):
-    created_at: datetime
-    updated_at: datetime
 
 
 class CategorySchema(BaseModel):

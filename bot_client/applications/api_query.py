@@ -35,6 +35,14 @@ class Api:
         token = requests.post(self.url_get_token, data=user)
         self.token = token.json()
 
+    def create_headers_token(self):
+        try:
+            bearer = f'Bearer {self.token["access_token"]}'
+            headers = {'Authorization': bearer}
+            return headers
+        except TypeError:
+            raise Forbidden
+
     def get_all_category(self) -> dict:
         try:
             categories = requests.get(self.url_categories, headers=self.create_headers_token())
@@ -44,16 +52,8 @@ class Api:
 
     def get_posts_filter_by_category_id(self, category_id: str) -> dict:
         try:
-            payload = {'post_id': category_id}
-            posts = requests.get(self.url_posts, headers=self.create_headers_token(), params=payload)
+            url = self.url_posts + '/' + category_id
+            posts = requests.get(url, headers=self.create_headers_token())
             return posts.json()
         except requests.exceptions.JSONDecodeError:
             pass
-
-    def create_headers_token(self):
-        try:
-            bearer = f'Bearer {self.token["access_token"]}'
-            headers = {'Authorization': bearer}
-            return headers
-        except TypeError:
-            raise Forbidden

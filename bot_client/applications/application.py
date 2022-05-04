@@ -1,5 +1,7 @@
 import os
 import typing
+from pprint import pprint
+
 from pyrogram import Client as PyrogramClient
 from applications.commands import Command
 from applications.keyboards import Keyboard
@@ -44,7 +46,14 @@ class Client(PyrogramClient):
         elif self.command.SELECTED_CATEGORY_PATTERN in callback_query.data:
             category_id = self.command.get_category_id(callback_query.data)
             posts = self.query_to_api.get_posts_filter_by_category_id(category_id)
-            print(posts)
+
+            msg = ''
+            for post in posts:
+                msg = msg + (f'{post["title"]}\n'
+                             f'{post["text"]}\n'
+                             f'{post["created_at"]}'
+                             f'\n')
+            await self.send_message(callback_query.message.chat.id, msg)
 
 
 app = Client('my_bot',

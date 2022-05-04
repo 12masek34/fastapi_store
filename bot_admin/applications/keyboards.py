@@ -20,9 +20,21 @@ class Keyboard:
         [InlineKeyboardButton('Отмена', callback_data='cancel')]
     ])
 
+    DELETE_CANCEL = InlineKeyboardMarkup([
+        [InlineKeyboardButton('Удалить', callback_data='delete')],
+        [InlineKeyboardButton('Отмена', callback_data='cancel')]
+    ])
+
     @staticmethod
-    def create_keyboard_category(categories: dict):
+    def create_keyboard_add_category(categories: dict):
         res = []
         for category in categories:
             res.append([InlineKeyboardButton(category['title'], callback_data=f'add_category_to_post{category["id"]}')])
+        return InlineKeyboardMarkup(res)
+
+    @staticmethod
+    def delete_keyboard_category(categories: dict):
+        res = []
+        for category in categories:
+            res.append([InlineKeyboardButton(category['title'], callback_data=f'delete_category{category["id"]}')])
         return InlineKeyboardMarkup(res)

@@ -19,6 +19,7 @@ class Api:
 
     def __init__(self):
         self.categories = None
+        self.category = None
         self.token: dict | None = None
 
     @property
@@ -27,11 +28,11 @@ class Api:
 
     @property
     def url_add_category(self) -> str:
-        return self.URL + self.ADD + self.CATEGORY
+        return self.URL + self.CATEGORY + self.ADD
 
     @property
     def url_add_post(self) -> str:
-        return self.URL + self.ADD + self.POST
+        return self.URL + self.POST + self.ADD
 
     @property
     def url_get_token(self) -> str:
@@ -40,6 +41,19 @@ class Api:
     @property
     def url_ger_users_me(self) -> str:
         return self.URL + self.USERS_ME
+
+    def get_token(self, user):
+        user = user.dict()
+        token = requests.post(self.url_get_token, data=user)
+        self.token = token.json()
+
+    def create_headers_token(self):
+        try:
+            bearer = f'Bearer {self.token["access_token"]}'
+            headers = {'Authorization': bearer}
+            return headers
+        except TypeError:
+            raise Forbidden
 
     def get_all_category(self) -> dict:
         try:
@@ -61,15 +75,15 @@ class Api:
         response = requests.post(self.url_add_category, data=data, headers=self.create_headers_token())
         return response.status_code
 
-    def get_token(self, user):
-        user = user.dict()
-        token = requests.post(self.url_get_token, data=user)
-        self.token = token.json()
+    def delete_category(self, category_id: int) -> str:
+        category_id = str(category_id)
+        url = self.URL + self.CATEGORIES + '/' + category_id
+        response = requests.delete(url, headers=self.create_headers_token())
+        return response.json()['title']
 
-    def create_headers_token(self):
-        try:
-            bearer = f'Bearer {self.token["access_token"]}'
-            headers = {'Authorization': bearer}
-            return headers
-        except TypeError:
-            raise Forbidden
+    def get_category(self, category_id: int) -> str:
+        category_id = str(category_id)
+        url = self.URL + self.CATEGORIES + '/' + category_id
+        response = requests.get(url, headers=self.create_headers_token())
+        self.category = response.json()
+        return response.json()['title']

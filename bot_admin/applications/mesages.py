@@ -6,9 +6,9 @@ class CallbackData:
         self.data: str | None = None
         self.category_id: int | None = None
 
-    def parse_category_id(self) -> None:
+    def parse_category_id(self) -> int:
         category_id = re.search(r'\d+', self.data).group()
-        self.category_id = int(category_id)
+        return int(category_id)
 
 
 class MessageMixin:

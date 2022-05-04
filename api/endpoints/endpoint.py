@@ -1,9 +1,11 @@
 from models.database import session, Category, Post
-from schemas.schema import CategorySchema, AddPostSchema, OkSchema, AddCategorySchema, PostSchema, PostIdSchema
+from schemas.schema import CategorySchema, AddPostSchema, OkSchema, AddCategorySchema, PostSchema
 from schemas.auth_schema import TokenSchema
 from fastapi.security import OAuth2PasswordRequestForm
 from authorizations.authorization import Auth
 from fastapi import Depends, HTTPException, status, APIRouter
+from pydantic.error_wrappers import ValidationError
+
 from datetime import timedelta
 
 endpoints = APIRouter()
@@ -14,27 +16,48 @@ ok_response = {'status': 'ok'}
 
 @endpoints.get('/categories', status_code=200, response_model=list[CategorySchema], tags=['categories'],
                dependencies=[(Depends(auth.check_auth))])
-async def all_categories():
+async def categories_all():
     categories = session.query(Category).all()
 
     return categories
 
 
-@endpoints.get('/posts', status_code=200, response_model=list[PostSchema], tags=['posts'],
-               dependencies=[(Depends(auth.check_auth))])
-async def posts(post_id: int):
-    if post_id is not None:
-        filter_posts = session.query(Post).filter(Post.category_id == post_id)
-        print(filter_posts)
+@endpoints.delete('/categories/{category_id}', status_code=200, response_model=CategorySchema,
+                  tags=['categories'],
+                  dependencies=[(Depends(auth.check_auth))])
+async def categories_delete(category_id: int):
+    filter_category = session.query(Category).filter(Category.id == category_id).one()
+    if category:
+        session.delete(filter_category)
+        session.commit()
+        return filter_category
+    else:
+        raise HTTPException(status_code=404, detail='Category not found')
 
+
+@endpoints.get('/categories/{category_id}', status_code=200, response_model=CategorySchema, tags=['categories'],
+               dependencies=[(Depends(auth.check_auth))])
+async def category(category_id: int):
+    filter_category = session.query(Category).filter(Category.id == category_id).one()
+    if filter_category:
+        return filter_category
+    else:
+        raise HTTPException(status_code=404, detail='Category not found')
+
+
+@endpoints.get('/posts/{post_id}', status_code=200, response_model=list[PostSchema], tags=['posts'],
+               dependencies=[(Depends(auth.check_auth))])
+async def post(post_id: int):
+    filter_posts = session.query(Post).filter(Post.category_id == post_id).all()
+    if filter_posts:
         return filter_posts
     else:
-        pass
+        raise HTTPException(status_code=404, detail='Posts not found')
 
 
-@endpoints.post('/add/post', status_code=201, response_model=OkSchema, tags=['posts'],
+@endpoints.post('/post/add', status_code=201, response_model=OkSchema, tags=['posts'],
                 dependencies=[(Depends(auth.check_auth))])
-async def add_post(data: AddPostSchema):
+async def post_add(data: AddPostSchema):
     post = Post(
         title=data.title,
         category_id=data.category_id,
@@ -46,9 +69,9 @@ async def add_post(data: AddPostSchema):
     return ok_response
 
 
-@endpoints.post('/add/category', status_code=201, response_model=OkSchema, tags=['categories'],
+@endpoints.post('/category/add', status_code=201, response_model=OkSchema, tags=['categories'],
                 dependencies=[(Depends(auth.check_auth))])
-async def add_category(data: AddCategorySchema):
+async def category_add(data: AddCategorySchema):
     category = Category(title=data.title)
     session.add(category)
     session.commit()

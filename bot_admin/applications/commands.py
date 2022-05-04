@@ -16,8 +16,11 @@ class Command:
     CREATE_CATEGORY_MESSAGE = 'Категория успешно добавлена.'
     CREATE_CATEGORY_TITLE_MESSAGE = ' Введите название категории.'
 
-    ADD_TITLE = 'add_title'
-    ADD_TEXT = 'add_text'
+    ERROR_CATEGORY = 'Нет не одной категории.'
+
+    TITLE = 'title'
+    TEXT = 'text'
+    ADD = 'add'
 
     CATEGORY = 'category'
     POST = 'post'
@@ -26,12 +29,9 @@ class Command:
     UPDATE = 'update'
     DELETE = 'delete'
     SAVE = 'save'
+    COMPLETED = 'completed'
 
-    NEW_POST = 'create_post'
-    NEW_CATEGORY = 'create_category'
     ADD_CATEGORY_TO_POST = 'add_category_to_post'
-    CREATE_POST_COMPLETED = 'create_post_completed'
-    CREATE_CATEGORY_COMPLETED = 'create_category_completed'
 
     DELETE_AND_SEND_MESSAGE = 'delete_and_send_message'
 
@@ -39,8 +39,16 @@ class Command:
         self.new_command = self.callback_data + '_' + self.location
 
     @property
+    def add_text(self) -> str:
+        return self.ADD + '_' + self.TEXT
+
+    @property
+    def add_title(self) -> str:
+        return self.ADD + '_' + self.TITLE
+
+    @property
     def add_title_category(self) -> str:
-        return self.ADD_TITLE + '_' + self.CATEGORY
+        return self.ADD + '_' + self.TITLE + '_' + self.CATEGORY
 
     @property
     def create_post(self) -> str:
@@ -49,3 +57,19 @@ class Command:
     @property
     def create_category(self) -> str:
         return self.CREATE + '_' + self.CATEGORY
+
+    @property
+    def delete_category(self) -> str:
+        return self.DELETE + '_' + self.CATEGORY
+
+    @property
+    def delete_category_completed(self) -> str:
+        return self.DELETE + '_' + self.CATEGORY + '_' + self.COMPLETED
+
+    @property
+    def create_category_completed(self) -> str:
+        return self.CREATE + '_' + self.CATEGORY + '_' + self.COMPLETED
+
+    @property
+    def create_post_completed(self) -> str:
+        return self.CREATE + '_' + self.POST + '_' + self.COMPLETED
