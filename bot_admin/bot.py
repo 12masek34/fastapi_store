@@ -4,10 +4,13 @@ from pyrogram.errors.exceptions.forbidden_403 import Forbidden
 
 if typing.TYPE_CHECKING:
     from applications.application import Client
+    from pyrogram.types.messages_and_media.message import Message
+    from pyrogram.types.bots_and_keyboards.callback_query import CallbackQuery
+
 
 
 @app.on_message()
-async def message_handler(client: 'Client', message):
+async def message_handler(client: 'Client', message: 'Message'):
     app.user.username = message.from_user.username
     app.user.password = str(message.from_user.id)
     app.text_message = message.text
@@ -43,7 +46,7 @@ async def message_handler(client: 'Client', message):
 
 
 @app.on_callback_query()
-async def answer(client, callback_query):
+async def answer(client: 'Client', callback_query: 'CallbackQuery'):
     try:
         app.callback_data.data = callback_query.data
         app.chat_id = callback_query.message.chat.id

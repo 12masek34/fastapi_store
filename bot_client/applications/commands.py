@@ -24,3 +24,13 @@ class Command:
         if match:
             category_id = re.search(r'\d+', data)
             return category_id.group()
+
+    @staticmethod
+    def create_message_posts(posts: dict):
+        message = ''
+        for post in posts:
+            message = message + (f'{post["title"]}\n'
+                                 f'{post["text"]}\n'
+                                 f'{post["created_at"]}'
+                                 f'\n')
+        return message
