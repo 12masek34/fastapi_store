@@ -45,6 +45,16 @@ async def category(category_id: int):
         raise HTTPException(status_code=404, detail='Category not found')
 
 
+@endpoints.post('/category/add', status_code=201, response_model=OkSchema, tags=['categories'],
+                dependencies=[(Depends(auth.check_auth))])
+async def category_add(data: AddCategorySchema):
+    category = Category(title=data.title)
+    session.add(category)
+    session.commit()
+
+    return ok_response
+
+
 @endpoints.get('/posts/{post_id}', status_code=200, response_model=list[PostSchema], tags=['posts'],
                dependencies=[(Depends(auth.check_auth))])
 async def post(post_id: int):
@@ -69,14 +79,12 @@ async def post_add(data: AddPostSchema):
     return ok_response
 
 
-@endpoints.post('/category/add', status_code=201, response_model=OkSchema, tags=['categories'],
-                dependencies=[(Depends(auth.check_auth))])
-async def category_add(data: AddCategorySchema):
-    category = Category(title=data.title)
-    session.add(category)
-    session.commit()
+@endpoints.get('/posts', status_code=200, response_model=list[PostSchema], tags=['posts'],
+               dependencies=[(Depends(auth.check_auth))])
+async def categories_all():
+    post = session.query(Post).all()
 
-    return ok_response
+    return post
 
 
 @endpoints.post("/token", status_code=200, response_model=TokenSchema, tags=['token'])

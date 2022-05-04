@@ -25,8 +25,15 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
                                reply_markup=keyboard)
         app.cache.append(app.command.CATEGORY)
 
+    elif callback_query.data == app.command.all_post:
+        posts = app.query_to_api.get_all_posts()
+        msg = app.command.create_message_posts(posts)
+        await app.send_message(callback_query.message.chat.id, msg)
+        app.cache.append(app.command.all_post)
+
     elif app.command.SELECTED_CATEGORY_PATTERN in callback_query.data:
         category_id = app.command.get_category_id(callback_query.data)
         posts = app.query_to_api.get_posts_filter_by_category_id(category_id)
         msg = app.command.create_message_posts(posts)
         await app.send_message(callback_query.message.chat.id, msg)
+        app.cache.append(category_id)

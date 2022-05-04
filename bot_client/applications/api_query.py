@@ -44,16 +44,17 @@ class Api:
             raise Forbidden
 
     def get_all_category(self) -> dict:
-        try:
-            categories = requests.get(self.url_categories, headers=self.create_headers_token())
-            return categories.json()
-        except requests.exceptions.JSONDecodeError:
-            pass
+
+        categories = requests.get(self.url_categories, headers=self.create_headers_token())
+        return categories.json()
 
     def get_posts_filter_by_category_id(self, category_id: str) -> dict:
-        try:
-            url = self.url_posts + '/' + category_id
-            posts = requests.get(url, headers=self.create_headers_token())
-            return posts.json()
-        except requests.exceptions.JSONDecodeError:
-            pass
+
+        url = self.url_posts + '/' + category_id
+        posts = requests.get(url, headers=self.create_headers_token())
+        return posts.json()
+
+    def get_all_posts(self):
+        url = self.url_posts
+        posts = requests.get(url, headers=self.create_headers_token())
+        return posts.json()

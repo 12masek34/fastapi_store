@@ -8,7 +8,6 @@ if typing.TYPE_CHECKING:
     from pyrogram.types.bots_and_keyboards.callback_query import CallbackQuery
 
 
-
 @app.on_message()
 async def message_handler(client: 'Client', message: 'Message'):
     app.user.username = message.from_user.username

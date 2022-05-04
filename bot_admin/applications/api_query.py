@@ -55,13 +55,10 @@ class Api:
         except TypeError:
             raise Forbidden
 
-    def get_all_category(self) -> dict:
-        try:
-            categories = requests.get(self.url_categories, headers=self.create_headers_token())
-            self.categories = categories.json()
-            return categories.json()
-        except requests.exceptions.JSONDecodeError:
-            pass
+    def get_all_category(self) -> dict | None:
+        categories = requests.get(self.url_categories, headers=self.create_headers_token())
+        self.categories = categories.json()
+        return categories.json()
 
     def add_post(self, data: PostSchema):
         data = data.dict()

@@ -1,14 +1,15 @@
+import os
 import datetime
-from sqlalchemy import create_engine, Column, String, Integer, DateTime, ForeignKey, Text, MetaData, Table
+from sqlalchemy import create_engine, Column, String, Integer, DateTime, ForeignKey, Text, MetaData
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, Session, backref
+from sqlalchemy.orm import relationship, Session
+from dotenv import load_dotenv
 
-# from migrate.versioning.schema import Table, Column
-
+load_dotenv()
 
 Base = declarative_base()
 
-engine = create_engine('postgresql+psycopg2://postgres:123@localhost/postgres')
+engine = create_engine(os.getenv('DNS'))
 meta = MetaData(bind=engine)
 
 session = Session(bind=engine)
@@ -40,20 +41,5 @@ class User(Base):
     hash_password = Column(String(128), nullable=False)
     created_at = Column(DateTime(), default=datetime.datetime.now)
 
-
 # Base.metadata.drop_all(engine)
 # Base.metadata.create_all(engine)
-
-#
-# table = Table('users', meta)
-# col = Column('name', String(128), nullable=False)
-# col.create(table)
-# table.drop()
-
-#
-# a = User(
-#     username='Dmitriy_Martys',
-#     hash_password='$2b$12$kyf7o75xzLg0R77GvSHdw.RFsVHn7OmbDxjZVNX4kgs35pBt5/9AO'
-# )
-# session.add(a)
-# session.commit()

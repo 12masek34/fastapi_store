@@ -12,6 +12,7 @@ class AddPostSchema(BaseModel):
 
 
 class PostSchema(BaseModel):
+    id: int
     title: str
     text: str
     category_id: int
