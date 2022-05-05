@@ -37,7 +37,7 @@ async def categories_all_count():
         resp['title'] = cat[1]
         resp['count'] = count[0]
         list_resp.append(resp)
-        print(list_resp)
+
 
     return list_resp
 

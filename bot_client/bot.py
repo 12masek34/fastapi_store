@@ -25,14 +25,9 @@ async def message_handler(client: 'Client', message: 'Message'):
             app.cache.append(app.command.CATEGORY)
 
 
-
-            # await app.send_message(message.chat.id, app.command.START_MESSAGE, reply_markup=app.keyboard.START)
-
-
 @app.on_callback_query()
 async def answer(client: 'Client', callback_query: 'CallbackQuery'):
     # if callback_query.data == app.command.CATEGORY:
-
 
     if callback_query.data == app.command.all_post:
         posts = app.query_to_api.get_all_posts()
