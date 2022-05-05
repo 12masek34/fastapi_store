@@ -12,25 +12,29 @@ if typing.TYPE_CHECKING:
 @app.on_message()
 async def message_handler(client: 'Client', message: 'Message'):
     if message.chat.title == NAME_CHANNEL:
-        print(message)
+        pass
     else:
         app.user.username = message.from_user.username
         app.user.password = str(message.from_user.id)
         if message.text.lower() in app.command.START:
             app.query_to_api.get_token(app.user)
-            await app.send_message(message.chat.id, app.command.START_MESSAGE, reply_markup=app.keyboard.START)
+            categories = app.query_to_api.get_category_count()
+            keyboard = app.keyboard.create_keyboard_category(categories)
+            await app.send_message(message.chat.id, app.command.CHOICE_CATEGORY_MESSAGE,
+                                   reply_markup=keyboard)
+            app.cache.append(app.command.CATEGORY)
+
+
+
+            # await app.send_message(message.chat.id, app.command.START_MESSAGE, reply_markup=app.keyboard.START)
 
 
 @app.on_callback_query()
 async def answer(client: 'Client', callback_query: 'CallbackQuery'):
-    if callback_query.data == app.command.CATEGORY:
-        categories = app.query_to_api.get_all_category()
-        keyboard = app.keyboard.create_keyboard_category(categories)
-        await app.send_message(callback_query.message.chat.id, app.command.CHOICE_CATEGORY_MESSAGE,
-                               reply_markup=keyboard)
-        app.cache.append(app.command.CATEGORY)
+    # if callback_query.data == app.command.CATEGORY:
 
-    elif callback_query.data == app.command.all_post:
+
+    if callback_query.data == app.command.all_post:
         posts = app.query_to_api.get_all_posts()
         msg = app.command.create_message_posts(posts)
         await app.send_message(callback_query.message.chat.id, msg)

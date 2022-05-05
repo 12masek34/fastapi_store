@@ -13,5 +13,5 @@ class Keyboard:
     def create_keyboard_category(categories: dict):
         res = []
         for category in categories:
-            res.append([InlineKeyboardButton(category['title'], callback_data=f'category_{category["id"]}')])
+            res.append([InlineKeyboardButton(category['title'] + f'({category["count"]})', callback_data=f'category_{category["id"]}')])
         return InlineKeyboardMarkup(res)

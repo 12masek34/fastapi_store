@@ -32,6 +32,15 @@ class CategorySchema(BaseModel):
         orm_mode = True
 
 
+class CategoriesCountSchema(BaseModel):
+    id: int
+    title: str
+    count: int
+
+    class Config:
+        orm_mode = True
+
+
 class AddCategorySchema(BaseModel):
     title: str
 

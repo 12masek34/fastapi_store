@@ -17,6 +17,7 @@ class Api:
     TOKEN = '/token'
     CATEGORIES = '/categories'
     POSTS = '/posts'
+    COUNT = '/count'
 
     @property
     def url_get_token(self) -> str:
@@ -25,6 +26,10 @@ class Api:
     @property
     def url_categories(self) -> str:
         return self.URL + self.CATEGORIES
+
+    @property
+    def url_categories_count(self) -> str:
+        return self.URL + self.CATEGORIES + self.COUNT
 
     @property
     def url_posts(self) -> str:
@@ -46,6 +51,11 @@ class Api:
     def get_all_category(self) -> dict:
 
         categories = requests.get(self.url_categories, headers=self.create_headers_token())
+        return categories.json()
+
+    def get_category_count(self) -> dict:
+
+        categories = requests.get(self.url_categories_count, headers=self.create_headers_token())
         return categories.json()
 
     def get_posts_filter_by_category_id(self, category_id: str) -> dict:

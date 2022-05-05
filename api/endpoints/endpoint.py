@@ -1,5 +1,8 @@
+from sqlalchemy import func
+
 from models.database import session, Category, Post, Image
-from schemas.schema import CategorySchema, AddPostSchema, OkSchema, AddCategorySchema, PostSchema, AddImageSchema
+from schemas.schema import (CategorySchema, AddPostSchema, OkSchema, AddCategorySchema, PostSchema, AddImageSchema,
+                            CategoriesCountSchema)
 from schemas.auth_schema import TokenSchema
 from fastapi.security import OAuth2PasswordRequestForm
 from authorizations.authorization import Auth
@@ -20,6 +23,23 @@ async def categories_all():
     categories = session.query(Category).all()
 
     return categories
+
+
+@endpoints.get('/categories/count', status_code=200, response_model=list[CategoriesCountSchema], tags=['categories'],
+               dependencies=[(Depends(auth.check_auth))])
+async def categories_all_count():
+    categories = session.query(Category.id, Category.title).order_by(Category.id).all()
+    counts = session.query(func.count(Post.id)).group_by(Post.category_id).order_by(Post.category_id).all()
+    list_resp = []
+    for cat, count in zip(categories, counts):
+        resp = dict()
+        resp['id'] = cat[0]
+        resp['title'] = cat[1]
+        resp['count'] = count[0]
+        list_resp.append(resp)
+        print(list_resp)
+
+    return list_resp
 
 
 @endpoints.delete('/categories/{category_id}', status_code=200, response_model=CategorySchema,

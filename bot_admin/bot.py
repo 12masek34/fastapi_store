@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 @app.on_message()
 async def message_handler(client: 'Client', message: 'Message'):
     if message.chat.title == NAME_CHANNEL:
-        print(message)
+        pass
     elif message.text:
         app.user.username = message.from_user.username
         app.user.password = str(message.from_user.id)
