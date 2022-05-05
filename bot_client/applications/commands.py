@@ -7,7 +7,10 @@ class Command:
     START_MESSAGE = 'Это интернет магазин Васи Пупкина.'
     CHOICE_CATEGORY_MESSAGE = 'Выберите категорию.'
 
+    SELECT = 'select'
     ALL = 'all'
+    NEXT = 'next'
+
     POST = 'post'
     CATEGORY = 'category'
 
@@ -26,11 +29,11 @@ class Command:
             return category_id.group()
 
     @staticmethod
-    def create_message_posts(posts: dict):
-        message = ''
+    def create_message_posts(posts: list[dict]):
+
         for post in posts:
-            message = message + (f'{post["title"]}\n'
-                                 f'{post["text"]}\n'
-                                 f'{post["created_at"]}'
-                                 f'\n')
-        return message
+            message = (f'{post["title"]}\n'
+                       f'{post["text"]}\n'
+                       f'{post["created_at"]}'
+                       f'\n')
+            yield message
