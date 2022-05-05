@@ -4,7 +4,7 @@ from pyrogram import Client as PyrogramClient
 from applications.commands import Command
 from applications.mesages import MessageMixin
 from applications.cache import Deque
-from schemas.schema import PostSchema, CategorySchema, TokenUserSchema
+from schemas.schema import PostSchema, CategorySchema, TokenUserSchema, ImageSchema
 from applications.api_query import Api
 from applications.keyboards import Keyboard
 from event.handler import EventHandler
@@ -27,6 +27,7 @@ class Client(PyrogramClient, MessageMixin):
         self.keyboard = Keyboard()
         self.event_handler = EventHandler()
         self.exception = MyException()
+        self.image = ImageSchema()
 
     def create_preview_post(self) -> str:
         title_category = ''
@@ -50,3 +51,6 @@ app = Client('my_bot',
              api_hash=os.getenv('api_hash'),
              bot_token=os.getenv('bot_token')
              )
+
+CHANNEL = os.getenv('CHANNEL')
+NAME_CHANNEL = os.getenv('NAME_CHANEL')

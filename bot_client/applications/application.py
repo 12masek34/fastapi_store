@@ -32,3 +32,6 @@ app = Client('my_bot',
              api_hash=os.getenv('api_hash'),
              bot_token=os.getenv('bot_token')
              )
+
+CHANNEL = os.getenv('CHANNEL')
+NAME_CHANNEL = os.getenv('NAME_CHANEL')

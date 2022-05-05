@@ -15,6 +15,8 @@ class Command:
     CREATE_POST_MESSAGE = 'Объявление успешно добавлено.'
     CREATE_CATEGORY_MESSAGE = 'Категория успешно добавлена.'
     CREATE_CATEGORY_TITLE_MESSAGE = ' Введите название категории.'
+    CREATE_IMAGE_POST_MESSAGE = 'Добавьте фото объявления.'
+    SAVE_MESSAGE = 'Сохранить?'
 
     ERROR_CATEGORY = 'Нет не одной категории.'
 
@@ -24,6 +26,7 @@ class Command:
 
     CATEGORY = 'category'
     POST = 'post'
+    PHOTO = 'photo'
 
     CREATE = 'create'
     UPDATE = 'update'
@@ -41,6 +44,10 @@ class Command:
     @property
     def add_text(self) -> str:
         return self.ADD + '_' + self.TEXT
+
+    @property
+    def add_text_post(self) -> str:
+        return self.add_text + '_' + self.POST
 
     @property
     def add_title(self) -> str:
@@ -73,3 +80,7 @@ class Command:
     @property
     def create_post_completed(self) -> str:
         return self.CREATE + '_' + self.POST + '_' + self.COMPLETED
+
+    @property
+    def add_photo(self) -> str:
+        return self.ADD + '_' + self.PHOTO

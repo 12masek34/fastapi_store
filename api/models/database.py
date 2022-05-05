@@ -8,10 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 Base = declarative_base()
-
 engine = create_engine(os.getenv('DNS'))
 meta = MetaData(bind=engine)
-
 session = Session(bind=engine)
 
 
@@ -32,6 +30,15 @@ class Post(Base):
     created_at = Column(DateTime(), default=datetime.datetime.now)
     updated_at = Column(DateTime(), default=datetime.datetime.now, onupdate=datetime.datetime.now)
     category = relationship('Category')
+    img = relationship('Image', cascade='all, delete-orphan')
+
+
+class Image(Base):
+    __tablename__ = 'images'
+    id = Column(Integer(), primary_key=True)
+    post_id = Column(Integer, ForeignKey('posts.id', ondelete='CASCADE'), nullable=False)
+    img = Column(String(200), nullable=False)
+    post = relationship('Post')
 
 
 class User(Base):

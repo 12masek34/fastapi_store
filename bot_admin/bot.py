@@ -1,5 +1,7 @@
 import typing
-from applications.application import app
+from pprint import pprint
+
+from applications.application import app, CHANNEL, NAME_CHANNEL
 from pyrogram.errors.exceptions.forbidden_403 import Forbidden
 
 if typing.TYPE_CHECKING:
@@ -10,38 +12,53 @@ if typing.TYPE_CHECKING:
 
 @app.on_message()
 async def message_handler(client: 'Client', message: 'Message'):
-    app.user.username = message.from_user.username
-    app.user.password = str(message.from_user.id)
-    app.text_message = message.text
-    app.chat_id = message.chat.id
-    app.message_id = message.id
-    if app.text_message in app.command.START:
-        app.query_to_api.get_token(app.user)
+    if message.chat.title == NAME_CHANNEL:
+        print(message)
+    elif message.text:
+        app.user.username = message.from_user.username
+        app.user.password = str(message.from_user.id)
+        app.text_message = message.text
+        app.chat_id = message.chat.id
+        app.message_id = message.id
+        if app.text_message in app.command.START:
+            app.query_to_api.get_token(app.user)
 
-        await app.send_message(app.chat_id, app.command.START_MESSAGE,
-                               reply_markup=app.keyboard.START)
+            await app.send_message(app.chat_id, app.command.START_MESSAGE,
+                                   reply_markup=app.keyboard.START)
 
-    elif app.cache.last_element == app.command.ADD_CATEGORY_TO_POST:
-        app.post.title = app.to_capitalize(app.text_message)
-        await app.send_message(app.chat_id, app.command.CREATE_POST_TEXT_MESSAGE)
-        app.cache.append(app.command.add_title)
+        elif app.cache.last_element == app.command.ADD_CATEGORY_TO_POST:
+            app.post.title = app.to_capitalize(app.text_message)
+            await app.send_message(app.chat_id, app.command.CREATE_POST_TEXT_MESSAGE)
+            app.cache.append(app.command.add_title)
 
-    elif app.cache.last_element == app.command.add_title:
-        app.post.text = app.to_capitalize(app.text_message)
-        preview_post = app.create_preview_post()
-        await app.send_message(app.chat_id, preview_post,
-                               reply_markup=app.keyboard.SAVE_CANCEL)
-        app.cache.append(app.command.add_text)
-        app.cache.append(app.command.create_post)
+        elif app.cache.last_element == app.command.add_title:
+            app.post.text = app.to_capitalize(app.text_message)
+            await app.send_message(app.chat_id, app.command.CREATE_IMAGE_POST_MESSAGE)
+            app.cache.append(app.command.add_text_post)
 
-    elif app.cache.last_element == app.command.create_category:
-        app.category.title = app.to_capitalize(app.text_message)
-        preview_category = app.create_preview_category()
-        await app.send_message(app.chat_id, preview_category,
-                               reply_markup=app.keyboard.SAVE_CANCEL)
+        elif app.cache.last_element == app.command.create_category:
+            app.category.title = app.to_capitalize(app.text_message)
+            preview_category = app.create_preview_category()
+            await app.send_message(app.chat_id, preview_category,
+                                   reply_markup=app.keyboard.SAVE_CANCEL)
 
-        app.cache.append(app.command.add_title_category)
-        app.cache.append(app.command.create_category)
+            app.cache.append(app.command.add_title_category)
+            app.cache.append(app.command.create_category)
+
+    elif message.photo is not None and app.cache.last_element == app.command.add_text_post:
+
+        # todo добавить обработку нескольких фото
+        app.chat_id = message.chat.id
+        app.message_id = message.id
+        app.image.img = message.photo.file_id
+        await app.send_photo(CHANNEL, app.image.img)
+        await app.delete_messages(message.chat.id, message.id)
+        await app.send_photo(app.chat_id, app.image.img)
+        preview_message = app.create_preview_post()
+        await app.send_message(app.chat_id, preview_message)
+        await app.send_message(app.chat_id, app.command.SAVE_MESSAGE, reply_markup=app.keyboard.SAVE_CANCEL)
+
+        app.cache.append(app.command.add_photo)
 
 
 @app.on_callback_query()
@@ -65,6 +82,7 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
         app.cache.append(app.callback_data.data)
 
     elif app.callback_data.data == app.command.CREATE and app.cache.last_element == app.command.POST:
+        # todo  обработать ошибку отсутствия категорий
         categories = app.query_to_api.get_all_category()
         keyboard = app.keyboard.create_keyboard_add_category(categories)
         await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
@@ -81,19 +99,21 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
                                                command=app.command.CREATE_POST_TITLE_MESSAGE)
         app.cache.append(app.command.ADD_CATEGORY_TO_POST)
 
-    elif app.callback_data.data == app.command.SAVE and app.command.create_post in app.cache.last_element:
-        if app.query_to_api.add_post(app.post) == 201:
-            await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
-                                                   message_id=app.message_id,
-                                                   command=app.command.CREATE_POST_MESSAGE)
-        else:
-            pass
+    elif app.callback_data.data == app.command.SAVE and app.cache.last_element == app.command.add_photo:
+
+        post_id = app.query_to_api.add_post(app.post)
+        app.image.post_id = post_id
+        app.query_to_api.add_image(app.image)
+        await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
+                                               message_id=app.message_id,
+                                               command=app.command.CREATE_POST_MESSAGE)
         app.cache.append(app.command.create_post_completed)
         await app.send_message(app.chat_id, app.command.START_MESSAGE,
                                reply_markup=app.keyboard.START)
 
     elif app.callback_data.data == app.command.SAVE and app.command.create_category in app.cache.last_element:
-        if app.query_to_api.add_category(app.category) == 201:
+        response_status_code = app.query_to_api.add_category(app.category)
+        if response_status_code == 201:
             await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
                                                    message_id=app.message_id,
                                                    command=app.command.CREATE_CATEGORY_MESSAGE)
@@ -141,17 +161,3 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
         await app.send_message(app.chat_id, app.command.START_MESSAGE,
                                reply_markup=app.keyboard.START)
         app.cache.append(app.command.delete_category_completed)
-
-    # if bot.cash.get_last_element() == bot.START:
-    #     bot.post.title = bot.text_message
-    #     bot.cash.append(bot.TITLE)
-    #     await bot.send_message(bot.chat_id, 'write title text')
-    # elif bot.cash.get_last_element() == bot.TITLE:
-    #     bot.post.text = bot.text_message
-    #     # await bot.delete_messages(bot.chat_id, bot.message_id)
-    #     await bot.send_message(bot.chat_id, 'write text post')
-    #     bot.cash.append(bot.TEXT)
-    # elif bot.cash.get_last_element() == bot.TEXT:
-    #     # await bot.delete_messages(bot.chat_id, bot.message_id)
-    #     await bot.send_message(bot.chat_id, 'write category post')
-    #     bot.post.category = bot.text_message

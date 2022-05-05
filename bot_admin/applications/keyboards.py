@@ -25,6 +25,7 @@ class Keyboard:
         [InlineKeyboardButton('Отмена', callback_data='cancel')]
     ])
 
+
     @staticmethod
     def create_keyboard_add_category(categories: dict):
         res = []

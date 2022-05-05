@@ -1,7 +1,7 @@
 import json
 import os
 import requests
-from schemas.schema import PostSchema, CategorySchema
+from schemas.schema import PostSchema, CategorySchema, ImageSchema
 from pyrogram.errors import Forbidden
 from dotenv import load_dotenv
 
@@ -14,8 +14,8 @@ class Api:
     CATEGORY = '/category'
     ADD = '/add'
     POST = '/post'
+    IMAGES = '/images'
     TOKEN = '/token'
-    USERS_ME = '/users/me'
 
     def __init__(self):
         self.categories = None
@@ -64,7 +64,7 @@ class Api:
         data = data.dict()
         data = json.dumps(data)
         response = requests.post(self.url_add_post, data=data, headers=self.create_headers_token())
-        return response.status_code
+        return response.json()
 
     def add_category(self, data: CategorySchema):
         data = data.dict()
@@ -84,3 +84,10 @@ class Api:
         response = requests.get(url, headers=self.create_headers_token())
         self.category = response.json()
         return response.json()['title']
+
+    def add_image(self, data: ImageSchema):
+        data = data.dict()
+        data = json.dumps(data)
+        url = self.URL + self.IMAGES + self.ADD
+        requests.post(url, data=data, headers=self.create_headers_token())
+

@@ -1,5 +1,7 @@
 import typing
-from applications.application import app
+from pprint import pprint
+
+from applications.application import app, CHANNEL, NAME_CHANNEL
 
 if typing.TYPE_CHECKING:
     from applications.application import Client
@@ -9,11 +11,14 @@ if typing.TYPE_CHECKING:
 
 @app.on_message()
 async def message_handler(client: 'Client', message: 'Message'):
-    app.user.username = message.from_user.username
-    app.user.password = str(message.from_user.id)
-    if message.text.lower() in app.command.START:
-        app.query_to_api.get_token(app.user)
-        await app.send_message(message.chat.id, app.command.START_MESSAGE, reply_markup=app.keyboard.START)
+    if message.chat.title == NAME_CHANNEL:
+        print(message)
+    else:
+        app.user.username = message.from_user.username
+        app.user.password = str(message.from_user.id)
+        if message.text.lower() in app.command.START:
+            app.query_to_api.get_token(app.user)
+            await app.send_message(message.chat.id, app.command.START_MESSAGE, reply_markup=app.keyboard.START)
 
 
 @app.on_callback_query()

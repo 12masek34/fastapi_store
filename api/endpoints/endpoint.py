@@ -1,5 +1,5 @@
-from models.database import session, Category, Post
-from schemas.schema import CategorySchema, AddPostSchema, OkSchema, AddCategorySchema, PostSchema
+from models.database import session, Category, Post, Image
+from schemas.schema import CategorySchema, AddPostSchema, OkSchema, AddCategorySchema, PostSchema, AddImageSchema
 from schemas.auth_schema import TokenSchema
 from fastapi.security import OAuth2PasswordRequestForm
 from authorizations.authorization import Auth
@@ -65,7 +65,7 @@ async def post(post_id: int):
         raise HTTPException(status_code=404, detail='Posts not found')
 
 
-@endpoints.post('/post/add', status_code=201, response_model=OkSchema, tags=['posts'],
+@endpoints.post('/post/add', status_code=201, response_model=int, tags=['posts'],
                 dependencies=[(Depends(auth.check_auth))])
 async def post_add(data: AddPostSchema):
     post = Post(
@@ -74,9 +74,10 @@ async def post_add(data: AddPostSchema):
         text=data.text
     )
     session.add(post)
+    session.flush()
     session.commit()
 
-    return ok_response
+    return post.id
 
 
 @endpoints.get('/posts', status_code=200, response_model=list[PostSchema], tags=['posts'],
@@ -85,6 +86,17 @@ async def categories_all():
     post = session.query(Post).all()
 
     return post
+
+
+@endpoints.post('/images/add', status_code=200, response_model=OkSchema, tags=['images'],
+                dependencies=[(Depends(auth.check_auth))])
+async def image_add(data: AddImageSchema):
+    img = Image(
+        post_id=data.post_id,
+        img=data.img
+    )
+    session.add(img)
+    session.commit()
 
 
 @endpoints.post("/token", status_code=200, response_model=TokenSchema, tags=['token'])

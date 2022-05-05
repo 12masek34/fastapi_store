@@ -19,3 +19,8 @@ class TokenUserSchema(BaseModel):
     scopes: str = []
     client_id: str | None = None
     client_secret: str | None = None
+
+
+class ImageSchema(BaseModel):
+    post_id: int | None = None
+    img: str | None = None
