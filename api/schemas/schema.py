@@ -11,18 +11,6 @@ class AddPostSchema(BaseModel):
         orm_mode = True
 
 
-class PostSchema(BaseModel):
-    id: int
-    title: str
-    text: str
-    category_id: int
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        orm_mode = True
-
-
 class CategorySchema(BaseModel):
     id: int
     title: str
@@ -55,6 +43,23 @@ class OkSchema(BaseModel):
 class AddImageSchema(BaseModel):
     post_id: int
     img: str
+
+    class Config:
+        orm_mode = True
+
+
+class ImageSchema(AddImageSchema):
+    id: int
+
+
+class PostSchema(BaseModel):
+    id: int
+    title: str
+    text: str
+    category_id: int
+    created_at: datetime
+    updated_at: datetime
+    img: list[ImageSchema]
 
     class Config:
         orm_mode = True

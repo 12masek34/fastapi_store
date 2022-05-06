@@ -20,7 +20,7 @@ ok_response = {'status': 'ok'}
 @endpoints.get('/categories', status_code=200, response_model=list[CategorySchema], tags=['categories'],
                dependencies=[(Depends(auth.check_auth))])
 async def categories_all():
-    categories = session.query(Category).all()
+    categories = session.query(Category).order_by(Category.id).all()
 
     return categories
 
@@ -29,11 +29,11 @@ async def categories_all():
                dependencies=[(Depends(auth.check_auth))])
 async def categories_all_count():
     categories = session.query(Category.id, Category.title).order_by(Category.id).all()
-    counts = session.query(func.count(Post.id)).group_by(Post.category_id).order_by(Post.category_id).all()
+    counts = session.query(func.count(Post.id), Post.category_id).group_by(Post.category_id).order_by(Post.category_id).all()
     list_resp = []
     for cat, count in zip(categories, counts):
         resp = dict()
-        resp['id'] = cat[0]
+        resp['id'] = count[1]
         resp['title'] = cat[1]
         resp['count'] = count[0]
         list_resp.append(resp)
@@ -74,10 +74,10 @@ async def category_add(data: AddCategorySchema):
     return ok_response
 
 
-@endpoints.get('/posts/{post_id}', status_code=200, response_model=list[PostSchema], tags=['posts'],
+@endpoints.get('/posts/category/{category_id}', status_code=200, response_model=list[PostSchema], tags=['posts'],
                dependencies=[(Depends(auth.check_auth))])
-async def post(post_id: int):
-    filter_posts = session.query(Post).filter(Post.category_id == post_id).all()
+async def post(category_id: int):
+    filter_posts = session.query(Post).filter(Post.category_id == category_id).all()
     if filter_posts:
         return filter_posts
     else:
@@ -107,14 +107,16 @@ async def categories_all():
     return post
 
 
-@endpoints.post('/images/add', status_code=200, response_model=OkSchema, tags=['images'],
+@endpoints.post('/images/add', status_code=201, response_model=OkSchema, tags=['images'],
                 dependencies=[(Depends(auth.check_auth))])
 async def image_add(data: AddImageSchema):
+    post = session.query(Post).filter(Post.id == data.post_id).one()
     img = Image(
         post_id=data.post_id,
         img=data.img
     )
-    session.add(img)
+    post.img.append(img)
+    session.add(post)
     session.commit()
 
 

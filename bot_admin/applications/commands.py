@@ -22,12 +22,13 @@ class Command:
 
     TITLE = 'title'
     TEXT = 'text'
-    ADD = 'add'
 
     CATEGORY = 'category'
     POST = 'post'
     PHOTO = 'photo'
 
+    SEND = 'send'
+    ADD = 'add'
     CREATE = 'create'
     UPDATE = 'update'
     DELETE = 'delete'
@@ -84,3 +85,7 @@ class Command:
     @property
     def add_photo(self) -> str:
         return self.ADD + '_' + self.PHOTO
+
+    @property
+    def send_photo(self) -> str:
+        return self.SEND + '_' + self.PHOTO

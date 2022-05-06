@@ -2,7 +2,7 @@ import os
 import datetime
 from sqlalchemy import create_engine, Column, String, Integer, DateTime, ForeignKey, Text, MetaData
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, Session
+from sqlalchemy.orm import relationship, Session, backref
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,31 +14,33 @@ session = Session(bind=engine)
 
 
 class Category(Base):
-    __tablename__ = 'categories'
+    __tablename__ = 'category'
     id = Column(Integer(), primary_key=True)
     title = Column(String(128), nullable=False)
     created_at = Column(DateTime(), default=datetime.datetime.now)
-    posts = relationship('Post', cascade='all, delete-orphan')
+
+    posts = relationship('Post', backref='category', cascade='all, delete-orphan')
 
 
 class Post(Base):
-    __tablename__ = 'posts'
+    __tablename__ = 'post'
     id = Column(Integer(), primary_key=True)
     title = Column(String(128), nullable=False)
-    category_id = Column(Integer, ForeignKey('categories.id', ondelete='CASCADE'), nullable=False)
+    category_id = Column(Integer, ForeignKey('category.id'), nullable=False)
     text = Column(Text(), nullable=False)
     created_at = Column(DateTime(), default=datetime.datetime.now)
     updated_at = Column(DateTime(), default=datetime.datetime.now, onupdate=datetime.datetime.now)
-    category = relationship('Category')
-    img = relationship('Image', cascade='all, delete-orphan')
+    # category = relationship('Category')
+    img = relationship('Image', backref='post', cascade='all, delete-orphan')
 
 
 class Image(Base):
-    __tablename__ = 'images'
+    __tablename__ = 'image'
     id = Column(Integer(), primary_key=True)
-    post_id = Column(Integer, ForeignKey('posts.id', ondelete='CASCADE'), nullable=False)
+    post_id = Column(Integer, ForeignKey('post.id'), nullable=False)
     img = Column(String(200), nullable=False)
-    post = relationship('Post')
+
+
 
 
 class User(Base):
@@ -47,6 +49,7 @@ class User(Base):
     username = Column(String(128), nullable=False)
     hash_password = Column(String(128), nullable=False)
     created_at = Column(DateTime(), default=datetime.datetime.now)
+
 
 # Base.metadata.drop_all(engine)
 # Base.metadata.create_all(engine)

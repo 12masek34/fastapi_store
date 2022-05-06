@@ -27,6 +27,8 @@ class Client(PyrogramClient):
         self.query_to_api = Api()
         self.user = TokenUserSchema()
         self.msg: Generator | None = None
+        self.post = None
+
 
 
 app = Client('my_bot',

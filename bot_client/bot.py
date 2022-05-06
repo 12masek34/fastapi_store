@@ -11,8 +11,11 @@ if typing.TYPE_CHECKING:
 
 @app.on_message()
 async def message_handler(client: 'Client', message: 'Message'):
+
     if message.chat.title == NAME_CHANNEL:
-        pass
+        if message.photo:
+            await app.send_message(CHANNEL, message.photo.file_id)
+
     elif message.text in app.command.START:
         app.user.username = message.from_user.username
         app.user.password = str(message.from_user.id)
@@ -27,7 +30,6 @@ async def message_handler(client: 'Client', message: 'Message'):
 
 @app.on_callback_query()
 async def answer(client: 'Client', callback_query: 'CallbackQuery'):
-    # if callback_query.data == app.command.CATEGORY:
 
     if callback_query.data == app.command.all_post:
         posts = app.query_to_api.get_all_posts()
@@ -38,15 +40,20 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
     elif app.command.SELECTED_CATEGORY_PATTERN in callback_query.data:
         category_id = app.command.get_category_id(callback_query.data)
         posts = app.query_to_api.get_posts_filter_by_category_id(category_id)
-        app.msg = app.command.create_message_posts(posts)
-        await app.send_message(callback_query.message.chat.id, next(app.msg), reply_markup=app.keyboard.BACK_NEXT)
+        app.post = app.command.create_message_posts(posts)
+        data = next(app.post)
+        await app.send_photo(callback_query.message.chat.id, data['image'])
+        await app.send_message(callback_query.message.chat.id, data['message'], reply_markup=app.keyboard.BACK_NEXT)
         app.cache.append(app.command.SELECT + '_' + app.command.SELECTED_CATEGORY_PATTERN + category_id)
 
     elif callback_query.data == app.command.NEXT:
         try:
-            await app.send_message(callback_query.message.chat.id, next(app.msg), reply_markup=app.keyboard.BACK_NEXT)
+            data = next(app.post)
+            await app.send_photo(callback_query.message.chat.id, data['image'])
+            await app.send_message(callback_query.message.chat.id, data['message'], reply_markup=app.keyboard.BACK_NEXT)
             # app.cache.append() todo  добавить кэш итерции
         except RuntimeError:
             pass
             # todo обработать стоп итератор
             # todo  пора бы уже прикрутить фото
+

@@ -29,11 +29,24 @@ class Command:
             return category_id.group()
 
     @staticmethod
-    def create_message_posts(posts: list[dict]):
+    def create_message_posts(posts: list[dict]) -> [str, str]:
 
         for post in posts:
             message = (f'{post["title"]}\n'
                        f'{post["text"]}\n'
                        f'{post["created_at"]}'
                        f'\n')
-            yield message
+            img = post['img'][0]['img']
+
+            resp = {'message': message,
+                    'image': img}
+
+            yield resp
+
+    @staticmethod
+    def create_image_posts(posts: list[dict]) -> str:
+
+        for post in posts:
+            img = post['img'][0]['img']
+            print(img)
+            yield img

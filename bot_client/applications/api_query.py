@@ -16,6 +16,7 @@ class Api:
 
     TOKEN = '/token'
     CATEGORIES = '/categories'
+    CATEGORY = '/category'
     POSTS = '/posts'
     COUNT = '/count'
 
@@ -60,7 +61,7 @@ class Api:
 
     def get_posts_filter_by_category_id(self, category_id: str) -> dict:
 
-        url = self.url_posts + '/' + category_id
+        url = self.url_posts + self.CATEGORY + '/' + category_id
         posts = requests.get(url, headers=self.create_headers_token())
         return posts.json()
 

@@ -13,7 +13,12 @@ if typing.TYPE_CHECKING:
 @app.on_message()
 async def message_handler(client: 'Client', message: 'Message'):
     if message.chat.title == NAME_CHANNEL:
-        pass
+        app.image.img = message.text
+        preview_message = app.create_preview_post()
+        await app.send_message(app.chat_id, preview_message)
+        await app.send_message(app.chat_id, app.command.SAVE_MESSAGE, reply_markup=app.keyboard.SAVE_CANCEL)
+        app.cache.append(app.command.add_photo)
+
     elif message.text:
         app.user.username = message.from_user.username
         app.user.password = str(message.from_user.id)
@@ -46,19 +51,19 @@ async def message_handler(client: 'Client', message: 'Message'):
             app.cache.append(app.command.create_category)
 
     elif message.photo is not None and app.cache.last_element == app.command.add_text_post:
-
+##
         # todo добавить обработку нескольких фото
-        app.chat_id = message.chat.id
-        app.message_id = message.id
-        app.image.img = message.photo.file_id
-        await app.send_photo(CHANNEL, app.image.img)
+        # app.chat_id = message.chat.id
+        # app.message_id = message.id
+        # app.image.img = message.photo.file_id
+        await app.send_photo(CHANNEL, message.photo.file_id)
         await app.delete_messages(message.chat.id, message.id)
-        await app.send_photo(app.chat_id, app.image.img)
-        preview_message = app.create_preview_post()
-        await app.send_message(app.chat_id, preview_message)
-        await app.send_message(app.chat_id, app.command.SAVE_MESSAGE, reply_markup=app.keyboard.SAVE_CANCEL)
+        await app.send_photo(app.chat_id, message.photo.file_id)
+        app.chat_id = message.chat.id
 
-        app.cache.append(app.command.add_photo)
+        # await app.send_message(app.chat_id, app.command.SAVE_MESSAGE, reply_markup=app.keyboard.SAVE_CANCEL)
+
+        app.cache.append(app.command.send_photo)
 
 
 @app.on_callback_query()
@@ -69,6 +74,7 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
         app.message_id = callback_query.message.id
     except Forbidden:
         await app.send_message(app.chat_id, app.exception.FORBIDDEN_MESSAGE)
+
     if app.callback_data.data == app.command.POST:
         await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
                                                message_id=app.message_id, command=app.command.POST_MESSAGE,
@@ -100,7 +106,6 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
         app.cache.append(app.command.ADD_CATEGORY_TO_POST)
 
     elif app.callback_data.data == app.command.SAVE and app.cache.last_element == app.command.add_photo:
-
         post_id = app.query_to_api.add_post(app.post)
         app.image.post_id = post_id
         app.query_to_api.add_image(app.image)

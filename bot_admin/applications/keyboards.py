@@ -30,6 +30,7 @@ class Keyboard:
     def create_keyboard_add_category(categories: dict):
         res = []
         for category in categories:
+            print(category['title'], category['id'])
             res.append([InlineKeyboardButton(category['title'], callback_data=f'add_category_to_post{category["id"]}')])
         return InlineKeyboardMarkup(res)
 
