@@ -22,10 +22,11 @@ async def message_handler(client: 'Client', message: 'Message'):
             categories = app.query_to_api.get_category_count()
             if len(categories) == 0:
                 await app.send_message(message.chat.id, app.command.EMPTY_CATEGORY_MESSAGE)
-            keyboard = app.keyboard.create_keyboard_category(categories)
-            await app.send_message(message.chat.id, app.command.CHOICE_CATEGORY_MESSAGE,
-                                   reply_markup=keyboard)
-            app.cache.command.append(app.command.CATEGORY)
+            else:
+                keyboard = app.keyboard.create_keyboard_category(categories)
+                await app.send_message(message.chat.id, app.command.CHOICE_CATEGORY_MESSAGE,
+                                       reply_markup=keyboard)
+                app.cache.command.append(app.command.CATEGORY)
 
 
 @app.on_callback_query()

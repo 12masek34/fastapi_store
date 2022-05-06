@@ -17,6 +17,7 @@ class Command:
     CREATE_CATEGORY_TITLE_MESSAGE = ' Введите название категории.'
     CREATE_IMAGE_POST_MESSAGE = 'Добавьте фото объявления.'
     SAVE_MESSAGE = 'Сохранить?'
+    EMPTY_CATEGORY_MESSAGE = 'Ни чего нет.'
 
     ERROR_CATEGORY = 'Нет не одной категории.'
 
