@@ -26,7 +26,7 @@ class Client(PyrogramClient):
         self.cache = Cache()
         self.query_to_api = Api()
         self.user = TokenUserSchema()
-        self.posts = None
+        self.posts: Cache | None = None
 
 
 
