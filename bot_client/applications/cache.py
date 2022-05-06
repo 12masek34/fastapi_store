@@ -8,3 +8,11 @@ class Deque(CollectionDeque):
     @property
     def last_element(self):
         return self[-1]
+
+
+class Cache(Deque):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.command: Deque = Deque()
+        self.posts: Deque = Deque()
+

@@ -5,7 +5,7 @@ from collections.abc import Generator
 from pyrogram import Client as PyrogramClient
 from applications.commands import Command
 from applications.keyboards import Keyboard
-from applications.cache import Deque
+from applications.cache import Cache
 from applications.api_query import Api
 from schemas.schema import TokenUserSchema
 from dotenv import load_dotenv
@@ -23,11 +23,10 @@ class Client(PyrogramClient):
         super().__init__(*args, **kwargs)
         self.command = Command()
         self.keyboard = Keyboard()
-        self.cache = Deque()
+        self.cache = Cache()
         self.query_to_api = Api()
         self.user = TokenUserSchema()
-        self.msg: Generator | None = None
-        self.post = None
+        self.posts = None
 
 
 

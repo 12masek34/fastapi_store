@@ -51,18 +51,13 @@ async def message_handler(client: 'Client', message: 'Message'):
             app.cache.append(app.command.create_category)
 
     elif message.photo is not None and app.cache.last_element == app.command.add_text_post:
-##
+
         # todo добавить обработку нескольких фото
-        # app.chat_id = message.chat.id
-        # app.message_id = message.id
-        # app.image.img = message.photo.file_id
+
         await app.send_photo(CHANNEL, message.photo.file_id)
         await app.delete_messages(message.chat.id, message.id)
         await app.send_photo(app.chat_id, message.photo.file_id)
         app.chat_id = message.chat.id
-
-        # await app.send_message(app.chat_id, app.command.SAVE_MESSAGE, reply_markup=app.keyboard.SAVE_CANCEL)
-
         app.cache.append(app.command.send_photo)
 
 

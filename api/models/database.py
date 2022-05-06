@@ -30,7 +30,6 @@ class Post(Base):
     text = Column(Text(), nullable=False)
     created_at = Column(DateTime(), default=datetime.datetime.now)
     updated_at = Column(DateTime(), default=datetime.datetime.now, onupdate=datetime.datetime.now)
-    # category = relationship('Category')
     img = relationship('Image', backref='post', cascade='all, delete-orphan')
 
 

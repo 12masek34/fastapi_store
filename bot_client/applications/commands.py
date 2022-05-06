@@ -1,4 +1,7 @@
+import datetime
 import re
+from applications.datacls import Post
+from applications.cache import Deque
 
 
 class Command:
@@ -10,6 +13,7 @@ class Command:
     SELECT = 'select'
     ALL = 'all'
     NEXT = 'next'
+    BACK = 'back'
 
     POST = 'post'
     CATEGORY = 'category'
@@ -30,18 +34,21 @@ class Command:
 
     @staticmethod
     def create_message_posts(posts: list[dict]) -> [str, str]:
-
+        queue = Deque()
         for post in posts:
-            message = (f'{post["title"]}\n'
-                       f'{post["text"]}\n'
-                       f'{post["created_at"]}'
-                       f'\n')
+            date = datetime.datetime.fromisoformat(post["created_at"])
+            date = date.strftime("%Y-%d-%m %H:%M")
+
+            text = (f'{post["title"]}\n\n'
+                    f'{post["text"]}\n\n'
+                    f'{date}')
             img = post['img'][0]['img']
 
-            resp = {'message': message,
-                    'image': img}
+            resp = Post(text=text, image=img)
 
-            yield resp
+            queue.append(resp)
+
+        return queue
 
     @staticmethod
     def create_image_posts(posts: list[dict]) -> str:
