@@ -9,6 +9,7 @@ class Command:
 
     START_MESSAGE = 'Это интернет магазин Васи Пупкина.'
     CHOICE_CATEGORY_MESSAGE = 'Выберите категорию.'
+    EMPTY_CATEGORY_MESSAGE = 'Ни чего нет.'
 
     SELECT = 'select'
     ALL = 'all'
@@ -50,10 +51,3 @@ class Command:
 
         return queue
 
-    @staticmethod
-    def create_image_posts(posts: list[dict]) -> str:
-
-        for post in posts:
-            img = post['img'][0]['img']
-            print(img)
-            yield img

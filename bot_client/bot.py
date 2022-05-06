@@ -1,5 +1,4 @@
 import typing
-from pprint import pprint
 
 from applications.application import app, CHANNEL, NAME_CHANNEL
 
@@ -21,6 +20,8 @@ async def message_handler(client: 'Client', message: 'Message'):
         if message.text.lower() in app.command.START:
             app.query_to_api.get_token(app.user)
             categories = app.query_to_api.get_category_count()
+            if len(categories) == 0:
+                await app.send_message(message.chat.id, app.command.EMPTY_CATEGORY_MESSAGE)
             keyboard = app.keyboard.create_keyboard_category(categories)
             await app.send_message(message.chat.id, app.command.CHOICE_CATEGORY_MESSAGE,
                                    reply_markup=keyboard)
@@ -29,6 +30,7 @@ async def message_handler(client: 'Client', message: 'Message'):
 
 @app.on_callback_query()
 async def answer(client: 'Client', callback_query: 'CallbackQuery'):
+
     if callback_query.data == app.command.all_post:
         posts = app.query_to_api.get_all_posts()
         msg = app.command.create_message_posts(posts)
@@ -36,6 +38,7 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
         app.cache.command.append(app.command.all_post)
 
     elif app.command.SELECTED_CATEGORY_PATTERN in callback_query.data:
+        app.cache.posts.clear()
         category_id = app.command.get_category_id(callback_query.data)
         posts = app.query_to_api.get_posts_filter_by_category_id(category_id)
         app.posts = app.command.create_message_posts(posts)
@@ -57,30 +60,31 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
             await app.send_message(callback_query.message.chat.id, data.text, reply_markup=app.keyboard.BACK_NEXT)
             app.cache.posts.append(data)
         except IndexError:
-            app.query_to_api.get_token(app.user)
             categories = app.query_to_api.get_category_count()
             keyboard = app.keyboard.create_keyboard_category(categories)
             await app.send_message(callback_query.message.chat.id, app.command.CHOICE_CATEGORY_MESSAGE,
                                    reply_markup=keyboard)
             app.cache.command.append(app.command.CATEGORY)
-            # todo обработать стоп итератор
+            app.cache.posts.clear()
+
     elif callback_query.data == app.command.BACK:
         try:
             last_element = app.cache.posts.last_element
             if last_element.text == callback_query.message.text:
                 data = app.cache.posts.pop()
                 app.posts.append(data)
+
             data = app.cache.posts.pop()
+            await app.send_photo(callback_query.message.chat.id, data.image)
+            await app.send_message(callback_query.message.chat.id, data.text, reply_markup=app.keyboard.BACK_NEXT)
+            app.cache.command.append(app.command.BACK)
+            app.posts.append(data)
         except IndexError:
-            app.query_to_api.get_token(app.user)
             categories = app.query_to_api.get_category_count()
             keyboard = app.keyboard.create_keyboard_category(categories)
             await app.send_message(callback_query.message.chat.id, app.command.CHOICE_CATEGORY_MESSAGE,
                                    reply_markup=keyboard)
             app.cache.command.append(app.command.CATEGORY)
+            app.cache.posts.clear()
 
 
-        await app.send_photo(callback_query.message.chat.id, data.image)
-        await app.send_message(callback_query.message.chat.id, data.text, reply_markup=app.keyboard.BACK_NEXT)
-        app.cache.command.append(app.command.BACK)
-        app.posts.append(data)
