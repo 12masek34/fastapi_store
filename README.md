@@ -7,7 +7,7 @@ FastAPI, Pydantic, Sqlalchemy
 Авторизация jose JWT
 
 ### Admin client
-Pyrogram, bcrypt
+Pyrogram, tgcrypto
 
 ### Client 
-Pyrogram (не начат)
+Pyrogram, tgcrypto
