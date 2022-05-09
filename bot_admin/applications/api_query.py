@@ -16,6 +16,7 @@ class Api:
     POST = '/post'
     IMAGES = '/images'
     TOKEN = '/token'
+    COUNT = '/count'
 
     def __init__(self):
         self.categories = None
@@ -39,8 +40,8 @@ class Api:
         return self.URL + self.TOKEN
 
     @property
-    def url_ger_users_me(self) -> str:
-        return self.URL + self.USERS_ME
+    def url_categories_count(self) -> str:
+        return self.URL + self.CATEGORIES + self.COUNT
 
     def get_token(self, user):
         user = user.dict()
@@ -58,6 +59,10 @@ class Api:
     def get_all_category(self) -> dict | None:
         categories = requests.get(self.url_categories, headers=self.create_headers_token())
         self.categories = categories.json()
+        return categories.json()
+
+    def get_category_count(self) -> dict | None:
+        categories = requests.get(self.url_categories_count, headers=self.create_headers_token())
         return categories.json()
 
     def add_post(self, data: PostSchema):
@@ -90,4 +95,3 @@ class Api:
         data = json.dumps(data)
         url = self.URL + self.IMAGES + self.ADD
         requests.post(url, data=data, headers=self.create_headers_token())
-

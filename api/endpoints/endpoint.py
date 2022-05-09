@@ -7,6 +7,7 @@ from schemas.auth_schema import TokenSchema
 from fastapi.security import OAuth2PasswordRequestForm
 from authorizations.authorization import Auth
 from fastapi import Depends, HTTPException, status, APIRouter
+from services.service import create_response_category_count
 from pydantic.error_wrappers import ValidationError
 
 from datetime import timedelta
@@ -29,16 +30,11 @@ async def categories_all():
                dependencies=[(Depends(auth.check_auth))])
 async def categories_all_count():
     categories = session.query(Category.id, Category.title).order_by(Category.id).all()
-    counts = session.query(func.count(Post.id), Post.category_id).group_by(Post.category_id).order_by(Post.category_id).all()
-    list_resp = []
-    for cat, count in zip(categories, counts):
-        resp = dict()
-        resp['id'] = count[1]
-        resp['title'] = cat[1]
-        resp['count'] = count[0]
-        list_resp.append(resp)
+    counts = session.query(func.count(Post.id), Post.category_id).group_by(Post.category_id).order_by(
+        Post.category_id).all()
+    resp = create_response_category_count(categories, counts)
 
-    return list_resp
+    return resp
 
 
 @endpoints.delete('/categories/{category_id}', status_code=200, response_model=CategorySchema,

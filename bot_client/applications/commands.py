@@ -15,6 +15,7 @@ class Command:
     ALL = 'all'
     NEXT = 'next'
     BACK = 'back'
+    MAIN = 'main'
 
     POST = 'post'
     CATEGORY = 'category'

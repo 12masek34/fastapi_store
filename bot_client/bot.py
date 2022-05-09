@@ -45,7 +45,7 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
         app.posts = app.command.create_message_posts(posts)
         data = app.posts.pop()
         await app.send_photo(callback_query.message.chat.id, data.image)
-        await app.send_message(callback_query.message.chat.id, data.text, reply_markup=app.keyboard.BACK_NEXT)
+        await app.send_message(callback_query.message.chat.id, data.text, reply_markup=app.keyboard.BACK_NEXT_MAIN)
         app.cache.posts.append(data)
         app.cache.command.append(app.command.SELECT + '_' + app.command.SELECTED_CATEGORY_PATTERN + category_id)
 
@@ -58,14 +58,17 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
 
             data = app.posts.pop()
             await app.send_photo(callback_query.message.chat.id, data.image)
-            await app.send_message(callback_query.message.chat.id, data.text, reply_markup=app.keyboard.BACK_NEXT)
+            await app.send_message(callback_query.message.chat.id, data.text, reply_markup=app.keyboard.BACK_NEXT_MAIN)
             app.cache.posts.append(data)
         except IndexError:
             categories = app.query_to_api.get_category_count()
-            keyboard = app.keyboard.create_keyboard_category(categories)
-            await app.send_message(callback_query.message.chat.id, app.command.CHOICE_CATEGORY_MESSAGE,
-                                   reply_markup=keyboard)
-            app.cache.command.append(app.command.CATEGORY)
+            if len(categories) == 0:
+                await app.send_message(callback_query.message.chat.id, app.command.EMPTY_CATEGORY_MESSAGE)
+            else:
+                keyboard = app.keyboard.create_keyboard_category(categories)
+                await app.send_message(callback_query.message.chat.id, app.command.CHOICE_CATEGORY_MESSAGE,
+                                       reply_markup=keyboard)
+                app.cache.command.append(app.command.CATEGORY)
             app.cache.posts.clear()
 
     elif callback_query.data == app.command.BACK:
@@ -77,7 +80,7 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
 
             data = app.cache.posts.pop()
             await app.send_photo(callback_query.message.chat.id, data.image)
-            await app.send_message(callback_query.message.chat.id, data.text, reply_markup=app.keyboard.BACK_NEXT)
+            await app.send_message(callback_query.message.chat.id, data.text, reply_markup=app.keyboard.BACK_NEXT_MAIN)
             app.cache.command.append(app.command.BACK)
             app.posts.append(data)
         except IndexError:
@@ -88,4 +91,13 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
             app.cache.command.append(app.command.CATEGORY)
             app.cache.posts.clear()
 
+    elif callback_query.data == app.command.MAIN:
+        categories = app.query_to_api.get_category_count()
+        if len(categories) == 0:
+            await app.send_message(callback_query.message.chat.id, app.command.EMPTY_CATEGORY_MESSAGE)
+        else:
+            keyboard = app.keyboard.create_keyboard_category(categories)
+            await app.send_message(callback_query.message.chat.id, app.command.CHOICE_CATEGORY_MESSAGE,
+                                   reply_markup=keyboard)
+            app.cache.command.append(app.command.CATEGORY)
 

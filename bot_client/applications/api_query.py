@@ -49,12 +49,12 @@ class Api:
         except TypeError:
             raise Forbidden
 
-    def get_all_category(self) -> dict:
+    def get_all_category(self) -> dict | None:
 
         categories = requests.get(self.url_categories, headers=self.create_headers_token())
         return categories.json()
 
-    def get_category_count(self) -> dict:
+    def get_category_count(self) -> dict | None:
 
         categories = requests.get(self.url_categories_count, headers=self.create_headers_token())
         return categories.json()

@@ -27,9 +27,38 @@ class Keyboard:
 
     @staticmethod
     def create_keyboard_add_category(categories: dict):
+
         res = []
         for category in categories:
             res.append([InlineKeyboardButton(category['title'], callback_data=f'add_category_to_post{category["id"]}')])
+        return InlineKeyboardMarkup(res)
+
+    @staticmethod
+    def create_keyboard_count_category(categories: list, count: dict):
+
+        gather_list = categories.copy()
+        index = 0
+        for cat in categories:
+            for c in count:
+                if cat['title'] == c['title']:
+                    gather_list.pop(index)
+                    index -= 1
+            index += 1
+
+        for c in count:
+            gather_list.append(c)
+
+        gather_list.reverse()
+        res = []
+
+        for i in gather_list:
+            if i['count'] is None:
+                res.append([InlineKeyboardButton(i['title'] + f'(0)',
+                                                 callback_data=f'add_category_to_post{i["id"]}')])
+            else:
+                res.append([InlineKeyboardButton(i['title'] + f'({i["count"]})',
+                                                 callback_data=f'add_category_to_post{i["id"]}')])
+
         return InlineKeyboardMarkup(res)
 
     @staticmethod

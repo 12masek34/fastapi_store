@@ -9,13 +9,17 @@ class Keyboard:
         [InlineKeyboardButton('Категории', callback_data='category')]
     ])
 
-    BACK_NEXT = InlineKeyboardMarkup([[InlineKeyboardButton('<<<<<', callback_data='back'),
-                                       InlineKeyboardButton('>>>>>', callback_data='next')]])
+    BACK_NEXT_MAIN = InlineKeyboardMarkup([[InlineKeyboardButton('<<<<<', callback_data='back'),
+                                            InlineKeyboardButton('>>>>>', callback_data='next')],
+                                           [InlineKeyboardButton('Главная', callback_data='main')]])
 
     @staticmethod
     def create_keyboard_category(categories: dict):
         res = []
         for category in categories:
-            res.append([InlineKeyboardButton(category['title'] + f'({category["count"]})',
-                                             callback_data=f'category_{category["id"]}')])
+            if category['count'] is None:
+                continue
+            else:
+                res.append([InlineKeyboardButton(category['title'] + f'({category["count"]})',
+                                                 callback_data=f'category_{category["id"]}')])
         return InlineKeyboardMarkup(res)

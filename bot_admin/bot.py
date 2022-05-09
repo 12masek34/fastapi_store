@@ -85,15 +85,28 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
     elif app.callback_data.data == app.command.CREATE and app.cache.last_element == app.command.POST:
 
         categories = app.query_to_api.get_all_category()
+        count = app.query_to_api.get_category_count()
         if len(categories) == 0:
-            await app.send_message(app.chat_id, app.comand.EMPTY_CATEGORY_MESSAGE)
+            await app.send_message(callback_query.message.chat.id, app.command.EMPTY_CATEGORY_MESSAGE)
         else:
-            keyboard = app.keyboard.create_keyboard_add_category(categories)
+            keyboard = app.keyboard.create_keyboard_count_category(categories, count)
             await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
                                                    message_id=app.message_id,
                                                    command=app.command.CHOICE_CATEGORY_MESSAGE,
                                                    keyboard=keyboard)
             app.cache.append(app.command.create_post)
+
+        #
+        # categories = app.query_to_api.get_all_category()
+        # if len(categories) == 0:
+        #     await app.send_message(app.chat_id, app.comand.EMPTY_CATEGORY_MESSAGE)
+        # else:
+        #     keyboard = app.keyboard.create_keyboard_add_category(categories)
+        #     await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
+        #                                            message_id=app.message_id,
+        #                                            command=app.command.CHOICE_CATEGORY_MESSAGE,
+        #                                            keyboard=keyboard)
+        #     app.cache.append(app.command.create_post)
 
     elif app.command.ADD_CATEGORY_TO_POST in app.callback_data.data:
         category_id = app.callback_data.parse_category_id()

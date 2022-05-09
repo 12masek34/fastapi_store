@@ -23,7 +23,7 @@ class CategorySchema(BaseModel):
 class CategoriesCountSchema(BaseModel):
     id: int
     title: str
-    count: int
+    count: int | None
 
     class Config:
         orm_mode = True
