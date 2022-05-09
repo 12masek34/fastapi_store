@@ -115,6 +115,8 @@ async def image_add(data: AddImageSchema):
     session.add(post)
     session.commit()
 
+    return ok_response
+
 
 @endpoints.post("/token", status_code=200, response_model=TokenSchema, tags=['token'])
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
