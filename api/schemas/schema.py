@@ -36,10 +36,6 @@ class AddCategorySchema(BaseModel):
         orm_mode = True
 
 
-class OkSchema(BaseModel):
-    status: str = 'ok'
-
-
 class AddImageSchema(BaseModel):
     post_id: int
     img: str

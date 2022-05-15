@@ -1,13 +1,15 @@
 import os
-
-from models.database import session, User
-from schemas.auth_schema import UserSchemaInDB, TokenDataSchema
 from datetime import datetime, timedelta
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from dotenv import load_dotenv
+
+from models.database import get_db
+from models.models import User
+from schemas.auth_schema import UserSchemaInDB
 
 load_dotenv()
 
@@ -21,7 +23,7 @@ class Auth:
 
     def __init__(self):
         self.pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-        self.session = session
+        self.session = next(get_db())
         self.db_user = User
         self.user: UserSchemaInDB | None = None
         self.encoded_jwt: str | None = None

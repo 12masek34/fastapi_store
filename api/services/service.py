@@ -1,5 +1,3 @@
-
-
 def create_response_category_count(category, cnt):
     list_resp = []
     for cat in category:
@@ -12,7 +10,7 @@ def create_response_category_count(category, cnt):
         for j in cnt:
             if j[1] == i['id']:
                 i.update({'count': j[0]})
+            else:
+                i.update({'count': 0})
+
     return list_resp
-
-
-
