@@ -1,6 +1,8 @@
-import uvicorn
+import os
 
+import uvicorn
 from fastapi import FastAPI
+
 from app import endpoints
 from models.database import create_db
 

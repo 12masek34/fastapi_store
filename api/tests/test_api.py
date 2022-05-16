@@ -1,37 +1,26 @@
 import os
 
-import requests
 from dotenv import load_dotenv
+import allure
 
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+from lib.my_requests import MyRequests
 
 load_dotenv()
 
-
-class TestUserAuth(BaseCase):
+@allure.epic('API cases')
+class TestAPI(BaseCase):
 
     def setup(self):
-        self.url = 'http://127.0.0.1:8000/'
         self.data = {'username': os.getenv('ADMIN_NAME'),
                      'password': os.getenv('ADMIN_PASS')}
-        self.auth_response = self.get_auth_token(self.url_token, self.data)
+        self.auth_response = self.get_auth_token('token', self.data)
         self.token = self.create_headers_token(self.auth_response.json())
 
-    @property
-    def url_token(self):
-        return self.url + 'token'
-
-    @property
-    def url_categories_count(self):
-        return self.url + 'categories/count'
-
-    @property
-    def url_categories(self):
-        return self.url + 'categories'
-
+    @allure.description('This test successfully authorize by username and password.')
     def test_get_token(self):
-        response = self.get_auth_token(self.url_token, self.data)
+        response = self.get_auth_token('token', self.data)
         Assertions.assert_value_by_name(response,
                                         'token_type',
                                         'bearer',
@@ -40,28 +29,32 @@ class TestUserAuth(BaseCase):
         Assertions.assert_status_code(response, 200)
         assert 'access_token' in response_dict, 'There is no field access_token in the response'
 
+    @allure.description('This positive test check categories route.')
     def test_categories(self):
-        response = requests.get(self.url_categories, headers=self.token)
+        response = MyRequests.get('categories', headers=self.token)
         response_list = response.json()
         Assertions.assert_status_code(response, 200)
         assert isinstance(response_list, list), 'Response must be list type'
 
+    @allure.description('This negative test check categories route.')
     def test_negative_categories(self):
-        response = requests.get(self.url_categories)
+        response = MyRequests.get('categories')
         Assertions.assert_status_code(response, 401)
         Assertions.assert_value_by_name(response,
                                         'detail',
                                         'Not authenticated',
                                         'User must be not authorization')
 
+    @allure.description('This positive test check categories/count route.')
     def test_categories_count(self):
-        response = requests.get(self.url_categories_count, headers=self.token)
+        response = MyRequests.get('categories/count', headers=self.token)
         response_list = response.json()
         Assertions.assert_status_code(response, 200)
         assert isinstance(response_list, list), f'Response must be list type, or not {type(response)}'
 
+    @allure.description('This negative test check categories/count route.')
     def test_negative_categories_count(self):
-        response = requests.get(self.url_categories_count)
+        response = MyRequests.get('categories/count')
         Assertions.assert_status_code(response, 401)
         Assertions.assert_value_by_name(response,
                                         'detail',

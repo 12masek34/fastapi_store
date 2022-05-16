@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SQLALCHEMY_URL_DATABASE = os.getenv('URL_DB')
+TEST_SQLALCHEMY_URL_DATABASE = os.getenv('URL_TEST_DB')
 
 Base = declarative_base()
 engine = create_engine(SQLALCHEMY_URL_DATABASE)
