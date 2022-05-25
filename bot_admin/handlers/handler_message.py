@@ -13,6 +13,7 @@ class HandlerMessageText(MyHandlerText):
         if self._message.text in self._app.command.START:
             self._app.user.username = self._message.from_user.username
             self._app.user.password = str(self._message.from_user.id)
+            print(self._app.user.password)
 
             self._app.query_to_api.get_token(self._app.user)
 

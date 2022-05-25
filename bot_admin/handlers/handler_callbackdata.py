@@ -6,7 +6,7 @@ class HandlerCallbackData(MyHandlerCallbackData):
     Обработчик callback data.
     """
 
-    async def category(self) -> None:
+    async def category_choice(self) -> None:
         """
         Обрабатывает  нажатие кнопки "категории"  callbackdata == category.
         """
@@ -49,3 +49,15 @@ class HandlerCallbackData(MyHandlerCallbackData):
             self._app.cache.append(self._app.command.create_category_completed)
             await self._app.send_message(self._app.chat_id, self._app.command.START_MESSAGE,
                                          reply_markup=self._app.keyboard.START)
+
+    async def post_choice(self) -> None:
+        """
+         Обработчик постов.
+        """
+        if self._app.callback_data.data == self._app.command.POST:
+            await self._app.event_handler.executor_event(self._app.command.DELETE_AND_SEND_MESSAGE,
+                                                         chat_id=self._app.chat_id,
+                                                         message_id=self._app.message_id,
+                                                         command=self._app.command.POST_MESSAGE,
+                                                         keyboard=self._app.keyboard.CRUD)
+            self._app.cache.append(self._app.callback_data.data)

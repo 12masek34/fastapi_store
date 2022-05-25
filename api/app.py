@@ -3,16 +3,16 @@ from datetime import timedelta
 from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from schemas.schema import (CategorySchema, AddPostSchema, AddCategorySchema, PostSchema, AddImageSchema,
                             CategoriesCountSchema, ImageSchema)
-from schemas.auth_schema import TokenSchema
-from authorizations.authorization import Auth
+from schemas.auth_schema import TokenSchema, RegistrationSchema, UserSchemaInDB
+from authorizations.authorization import auth
 from models.database import get_db
 from models import crud
 
 endpoints = APIRouter()
-auth = Auth()
 
 
 @endpoints.get('/categories', status_code=200, response_model=list[CategorySchema], tags=['categories'],
@@ -96,3 +96,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@endpoints.post("/registration", status_code=200, response_model=UserSchemaInDB, tags=['token'])
+async def registration(data: RegistrationSchema, db: Session = Depends(get_db)):
+    try:
+        return crud.create_user(db, data)
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail='Username is already exists.'
+                            )

@@ -77,13 +77,14 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
     except Forbidden:
         await app.send_message(app.chat_id, app.exception.FORBIDDEN_MESSAGE)
 
-    if app.callback_data.data == app.command.POST:
-        await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
-                                               message_id=app.message_id, command=app.command.POST_MESSAGE,
-                                               keyboard=app.keyboard.CRUD)
-        app.cache.append(app.callback_data.data)
+    await handler.callback_data.post_choice()
+    # if app.callback_data.data == app.command.POST:
+    #     await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
+    #                                            message_id=app.message_id, command=app.command.POST_MESSAGE,
+    #                                            keyboard=app.keyboard.CRUD)
+    #     app.cache.append(app.callback_data.data)
 
-    await handler.callback_data.category()
+    await handler.callback_data.category_choice()
     # elif app.callback_data.data == app.command.CATEGORY:
     #     await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
     #                                            message_id=app.message_id, command=app.command.CATEGORY_MESSAGE,

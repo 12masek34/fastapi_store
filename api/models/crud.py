@@ -5,6 +5,8 @@ from . import models
 from services import service
 from schemas.schema import (CategoriesCountSchema, CategorySchema, AddCategorySchema, PostSchema, AddPostSchema,
                             AddImageSchema, ImageSchema)
+from schemas.auth_schema import RegistrationSchema, UserSchemaInDB
+from authorizations.authorization import auth
 
 
 def get_all_category(db: Session) -> list[models.Category]:
@@ -69,3 +71,12 @@ def update_post_add_image(db: Session, data: AddImageSchema) -> ImageSchema:
     db.flush()
     db.commit()
     return img
+
+
+def create_user(db: Session, data: RegistrationSchema) -> UserSchemaInDB:
+    hash_password = auth.get_password_hash(data.password)
+    user = models.User(username=data.username,
+                       hash_password=hash_password)
+    db.add(user)
+    db.commit()
+    return user

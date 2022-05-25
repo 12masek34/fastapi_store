@@ -72,3 +72,5 @@ class Auth:
                 raise self.credentials_exception
         except JWTError:
             raise self.credentials_exception
+
+auth = Auth()

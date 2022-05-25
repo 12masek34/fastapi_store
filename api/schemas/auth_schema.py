@@ -23,3 +23,11 @@ class UserSchemaInDB(UserSchema):
 
     class Config:
         orm_mode = True
+
+
+class RegistrationSchema(BaseModel):
+    username: str
+    password: str
+
+    class Config:
+        orm_mode = True
