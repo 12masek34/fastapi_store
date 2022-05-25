@@ -4,3 +4,8 @@ __pycache__/
 /logs/
 /test_results/
 /tmp.py
+../bot_admin/my_account.session
+../bot_admin/my_bot.session
+../bot_admin/tmp.py
+
+
