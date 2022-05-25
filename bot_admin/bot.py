@@ -1,8 +1,9 @@
 import typing
-from pprint import pprint
+
+from pyrogram.errors.exceptions.forbidden_403 import Forbidden
 
 from applications.application import app, CHANNEL, NAME_CHANNEL
-from pyrogram.errors.exceptions.forbidden_403 import Forbidden
+from handlers.my_handler import Handler
 
 if typing.TYPE_CHECKING:
     from applications.application import Client
@@ -12,6 +13,9 @@ if typing.TYPE_CHECKING:
 
 @app.on_message()
 async def message_handler(client: 'Client', message: 'Message'):
+    handler = Handler(app, message)
+    await handler.message_text.start()
+
     if message.chat.title == NAME_CHANNEL:
         app.image.img = message.text
         preview_message = app.create_preview_post()
@@ -25,13 +29,14 @@ async def message_handler(client: 'Client', message: 'Message'):
         app.text_message = message.text
         app.chat_id = message.chat.id
         app.message_id = message.id
-        if app.text_message in app.command.START:
-            app.query_to_api.get_token(app.user)
 
-            await app.send_message(app.chat_id, app.command.START_MESSAGE,
-                                   reply_markup=app.keyboard.START)
+        # if app.text_message in app.command.START:
+        #     app.query_to_api.get_token(app.user)
+        #
+        #     await app.send_message(app.chat_id, app.command.START_MESSAGE,
+        #                            reply_markup=app.keyboard.START)
 
-        elif app.cache.last_element == app.command.ADD_CATEGORY_TO_POST:
+        if app.cache.last_element == app.command.ADD_CATEGORY_TO_POST:
             app.post.title = app.to_capitalize(app.text_message)
             await app.send_message(app.chat_id, app.command.CREATE_POST_TEXT_MESSAGE)
             app.cache.append(app.command.add_title)
@@ -63,6 +68,7 @@ async def message_handler(client: 'Client', message: 'Message'):
 
 @app.on_callback_query()
 async def answer(client: 'Client', callback_query: 'CallbackQuery'):
+    handler = Handler(app, callback_query)
     try:
         app.callback_data.data = callback_query.data
         app.chat_id = callback_query.message.chat.id
@@ -76,13 +82,14 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
                                                keyboard=app.keyboard.CRUD)
         app.cache.append(app.callback_data.data)
 
-    elif app.callback_data.data == app.command.CATEGORY:
-        await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
-                                               message_id=app.message_id, command=app.command.CATEGORY_MESSAGE,
-                                               keyboard=app.keyboard.CRUD)
-        app.cache.append(app.callback_data.data)
+    await handler.callback_data.category()
+    # elif app.callback_data.data == app.command.CATEGORY:
+    #     await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
+    #                                            message_id=app.message_id, command=app.command.CATEGORY_MESSAGE,
+    #                                            keyboard=app.keyboard.CRUD)
+    #     app.cache.append(app.callback_data.data)
 
-    elif app.callback_data.data == app.command.CREATE and app.cache.last_element == app.command.POST:
+    if app.callback_data.data == app.command.CREATE and app.cache.last_element == app.command.POST:
 
         categories = app.query_to_api.get_all_category()
         count = app.query_to_api.get_category_count()
