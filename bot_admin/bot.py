@@ -46,14 +46,15 @@ async def message_handler(client: 'Client', message: 'Message'):
             await app.send_message(app.chat_id, app.command.CREATE_IMAGE_POST_MESSAGE)
             app.cache.append(app.command.add_text_post)
 
-        elif app.cache.last_element == app.command.create_category:
-            app.category.title = app.to_capitalize(app.text_message)
-            preview_category = app.create_preview_category()
-            await app.send_message(app.chat_id, preview_category,
-                                   reply_markup=app.keyboard.SAVE_CANCEL)
+        await handler.message_text.create_category()
+        # elif app.cache.last_element == app.command.create_category:
+        #     app.category.title = app.to_capitalize(app.text_message)
+        #     preview_category = app.create_preview_category()
+        #     await app.send_message(app.chat_id, preview_category,
+        #                            reply_markup=app.keyboard.SAVE_CANCEL)
 
-            app.cache.append(app.command.add_title_category)
-            app.cache.append(app.command.create_category)
+        # app.cache.append(app.command.add_title_category)
+        # app.cache.append(app.command.create_category)
 
     elif message.photo is not None and app.cache.last_element == app.command.add_text_post:
 
@@ -122,25 +123,27 @@ async def answer(client: 'Client', callback_query: 'CallbackQuery'):
         await app.send_message(app.chat_id, app.command.START_MESSAGE,
                                reply_markup=app.keyboard.START)
 
-    elif app.callback_data.data == app.command.SAVE and app.command.create_category in app.cache.last_element:
-        response_status_code = app.query_to_api.add_category(app.category)
-        if response_status_code == 201:
-            await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
-                                                   message_id=app.message_id,
-                                                   command=app.command.CREATE_CATEGORY_MESSAGE)
-        else:
-            pass
-        app.cache.append(app.command.create_category_completed)
-        await app.send_message(app.chat_id, app.command.START_MESSAGE,
-                               reply_markup=app.keyboard.START)
+    await handler.callback_data.save_category()
+    # elif app.callback_data.data == app.command.SAVE and app.cache.last_element == app.command.create_category:
+    #     response_status_code = app.query_to_api.add_category(app.category)
+    #     if response_status_code == 201:
+    #         await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
+    #                                                message_id=app.message_id,
+    #                                                command=app.command.CREATE_CATEGORY_MESSAGE)
+    #     else:
+    #         pass
+    #     app.cache.append(app.command.create_category_completed)
+    #     await app.send_message(app.chat_id, app.command.START_MESSAGE,
+    #                            reply_markup=app.keyboard.START)
 
-    elif app.callback_data.data == app.command.CREATE and app.cache.last_element == app.command.CATEGORY:
-        await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
-                                               message_id=app.message_id,
-                                               command=app.command.CREATE_CATEGORY_TITLE_MESSAGE)
-        app.cache.append(app.command.create_category)
+    await handler.callback_data.create_category()
+    # elif app.callback_data.data == app.command.CREATE and app.cache.last_element == app.command.CATEGORY:
+    #     await app.event_handler.executor_event(app.command.DELETE_AND_SEND_MESSAGE, chat_id=app.chat_id,
+    #                                            message_id=app.message_id,
+    #                                            command=app.command.CREATE_CATEGORY_TITLE_MESSAGE)
+    #     app.cache.append(app.command.create_category)
 
-    elif app.callback_data.data == app.command.DELETE and app.cache.last_element == app.command.CATEGORY:
+    if app.callback_data.data == app.command.DELETE and app.cache.last_element == app.command.CATEGORY:
         categories = app.query_to_api.get_all_category()
         if len(categories) == 0:
             await app.send_message(app.chat_id, app.command.ERROR_CATEGORY,

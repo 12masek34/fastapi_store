@@ -53,7 +53,7 @@ class Api:
             bearer = f'Bearer {self.token["access_token"]}'
             headers = {'Authorization': bearer}
             return headers
-        except TypeError:
+        except KeyError:
             raise Forbidden
 
     def get_all_category(self) -> dict | None:
